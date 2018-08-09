@@ -1,0 +1,22 @@
+{
+  "public": {
+    "author": "evan.network GmbH",
+    "dapp": {
+      "entrypoint": "compiled.js",
+      "files": [
+        "compiled.js"
+      ],
+      "type": "library",
+      "origin": "QmeLc8tagfqU1mvcxKnzxKakf9bPzkMGFMRZ7tpUoyc8Pe"
+    },
+    "description": "evan.network admin compiled smart contracts.",
+    "name": "smartcontractsadmin",
+    "tags": [
+      "dapp",
+      "contractus",
+      "library"
+    ],
+    "version": "1.0.1",
+    "versions": {}
+  }
+}

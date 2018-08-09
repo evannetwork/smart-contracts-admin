@@ -1,0 +1,17 @@
+{
+  "license": "AGPL-3.0-only",
+  "author": "evan.network GmbH",
+  "description": "evan.network admin smart contracts",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "homepage": "https://evannetwork.github.io/",
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "smart-contracts"
+  ],
+  "main": "index.js",
+  "name": "@evan.network/smart-contracts-admin",
+  "version": "1.0.2"
+}
