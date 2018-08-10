@@ -25,8 +25,41 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.18;
 
-module.exports = {
-  Solc
-};
+import './ENS.sol';
+import './Core.sol';
+
+/**
+ * A registrar that allocates subdomains to the first person to claim them.
+ */
+contract OwnedRegistrar is Owned {
+    ENS ens;
+    bytes32 rootNode;
+
+    /**
+     * Constructor.
+     * @param ensAddr The address of the ENS registry.
+     * @param node The node that this registrar administers.
+     */
+    function OwnedRegistrar(ENS ensAddr, bytes32 node) public {
+        ens = ensAddr;
+        rootNode = node;
+    }
+
+    /**
+     * Register a name, or change the owner of an existing registration.
+     * @param subnode The hash of the label to register.
+     * @param newOwner The address of the new owner.
+     */
+    function register(bytes32 subnode, address newOwner) public only_owner {
+        ens.setSubnodeOwner(rootNode, subnode, newOwner);
+    }
+
+    /**
+     * Set the owner of the rootNode back to the owner of the registrar
+     */
+    function setRootNodeOwner() public only_owner {
+        ens.setOwner(rootNode, owner);
+    }    
+}

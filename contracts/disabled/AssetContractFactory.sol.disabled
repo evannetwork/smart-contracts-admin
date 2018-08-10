@@ -1,0 +1,14 @@
+pragma solidity ^0.4.0;
+import "./BaseContractFactoryInterface.sol";
+import "./AssetContract.sol";
+
+contract AssetContractFactory is BaseContractFactoryInterface {
+  uint public VERSION_ID = 1;
+
+  function createContract(address businessCenter, address provider, bytes32 _contractDefinition) returns (address) {
+    AssetContract newContract = new AssetContract(businessCenter, provider, _contractDefinition);
+    newContract.transferOwnership(provider);
+    ContractCreated(sha3('AssetContract'), newContract);
+    return newContract;
+  }
+}

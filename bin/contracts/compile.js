@@ -25,8 +25,34 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+const { api, CLI } = require('actionhero')
+const { promisify } = require('util')
+const { unlink } = require('fs')
 
-module.exports = {
-  Solc
+const Solc = require('../../lib/solc')
+
+
+module.exports = class ContractsCompile extends CLI {
+  constructor () {
+    super()
+    this.name = 'contracts compile'
+    this.description = 'I compile all smart contracts'
+    this.example = 'actionhero contracts compile'
+  }
+
+  inputs () {
+    return { }
+  }
+
+  async run () {
+    const solcLib = new Solc({
+      api,
+      config: api.config.eth,
+      log: api.log,
+    })
+    const ensContracts = `${__dirname}/../../node_modules/ens/contracts`
+    await promisify(unlink)(Solc.compiledPath)
+    await promisify(unlink)(Solc.compiledJSPath)
+    await solcLib.compileContracts(ensContracts)
+  }
 };

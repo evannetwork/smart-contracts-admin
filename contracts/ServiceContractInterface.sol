@@ -25,8 +25,22 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity 0.4.20;
 
-module.exports = {
-  Solc
-};
+import "./BaseContractInterface.sol";
+
+contract ServiceContractInterface is BaseContractInterface {
+    bytes32 public service;
+    // total count of all threads
+    uint256 public callCount;
+    // all calls
+    mapping(uint256 => bytes32) public calls;
+    // [7] == 3 --> call 7 has 3 answers
+    mapping(uint256 => uint256) public answersCountPerCall;
+    // [7[1] == 0x123 --> second answer to mail 7 is 0x123
+    mapping(uint256 => mapping(uint256 => bytes32)) public answersPerCall;
+
+    function setService(address _businessCenter, bytes32 hash) public;
+    function sendAnswer(bytes32 answerHash, uint256 callId) public;
+    function sendCall(bytes32 callHash) public;
+}

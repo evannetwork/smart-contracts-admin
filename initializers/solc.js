@@ -25,8 +25,32 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+'use strict'
+const {Initializer, api} = require('actionhero')
 
-module.exports = {
-  Solc
-};
+const Solc = require('../lib/solc');
+
+module.exports = class SolcInitializer extends Initializer {
+  constructor () {
+    super()
+    this.name = 'solc'
+    this.loadPriority = 2000
+    this.startPriority = 2000
+    this.stopPriority = 2000
+  }
+
+  async initialize () {
+    const solcLib = new Solc({
+      api,
+      config: api.config.eth,
+      log: api.log
+    });
+    await solcLib.ensureCompiled();
+    api['solc'] = {
+      getContracts: solcLib.getContracts,
+    }
+  }
+
+  async start () {}
+  async stop () {}
+}

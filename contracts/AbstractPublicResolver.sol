@@ -25,8 +25,13 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+contract AbstractPublicResolver {
+    function PublicResolver(address);
+    function supportsInterface(bytes4) constant returns (bool);
+    function addr(bytes32) constant returns (address);
+    function setAddr(bytes32, address);
+    function hash(bytes32) constant returns (bytes32);
+    function setHash(bytes32, bytes32);
+}

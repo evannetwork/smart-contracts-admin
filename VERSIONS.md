@@ -1,33 +1,6 @@
 # smart-contracts
 
 ## Next Version
-### Features
-### Fixes
-### Deprecations
-
-## Version 1.0.2
-### Features
-- add minimum permissions to `TransactionPermissionContract.sol`, that allow to define minimum permissions for all accounts (even if not added to contracts permitted object)
-
-### Fixes
-
-### Deprecations
-- rename project to `@evan-network/smart-contracts-admin`
-- move core contracts and compile logic into `@evan-network/smart-contracts-core`
-
-
-## Version 1.0.1
-### Features
-- use @evan.network for package name and dependencies scopes
-- add `TransactionPermissionContract.sol` for checking if accounts are allowed to perform transactions
-- add Parity Registry and Certifier related contracts
-- allow the owner of `ProfileIndex.sol` to set profiles for other accounts
-
-### Deprecations
-- remove Defined.sol as it isn't longer in use (artifact from name cleanup)
-
-## Version 1.0.0
-- add support for passing multiple folders to compileContracts (in addition default folder and ens folder)
 - add docu for DataContract and sample contract (TaskDataContractFactory.sol)
 - add note on how to build docu files (including the workaround for solc warnings)
 - replace DataContract.addListEntry with addListEntries that adds multiple bytes32 value
@@ -46,5 +19,5 @@
 - rewrite `Mailbox.withdrawFromMail` to require a target account when withdrawing
 - forbid inviting consumers into contracts, when consumer does not know inviter (or has blocked this account)
 
-## Version 0.9.0
-- initial version and release candidate for 1.0.0
+## Version 0.1.0
+- initial version

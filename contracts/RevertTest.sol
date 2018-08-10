@@ -25,8 +25,16 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+contract RevertTest {
+    uint public ownX;
+    function test(uint x) public {
+        ownX = x;
+        require(x != 2);
+        assert(x != 3);
+        // if (x == 4) {
+        //   throw;
+        // }
+    }
+}

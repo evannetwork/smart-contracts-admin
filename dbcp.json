@@ -1,22 +1,25 @@
 {
   "public": {
-    "author": "evan.network GmbH",
+    "autor": "contractus",
     "dapp": {
       "entrypoint": "compiled.js",
       "files": [
         "compiled.js"
       ],
       "type": "library",
-      "origin": "QmeLc8tagfqU1mvcxKnzxKakf9bPzkMGFMRZ7tpUoyc8Pe"
+      "origin": "QmSd1coTGzx8YyqgeogLaQF4Juit2wjUWXoNybdoq57UGC",
+      "definitionHash": "QmQkzq8CQrw6yM4P7LzevSR6mQgyzGWFZcbx4kJ7SSfVaJ"
     },
-    "description": "evan.network admin compiled smart contracts.",
-    "name": "smartcontractsadmin",
+    "description": "Contractus core compiled smart contracts.",
+    "name": "smartcontracts",
     "tags": [
       "dapp",
       "contractus",
       "library"
     ],
-    "version": "1.0.1",
-    "versions": {}
+    "version": "0.1.0",
+    "versions": {
+      "0.1.0": "QmQkzq8CQrw6yM4P7LzevSR6mQgyzGWFZcbx4kJ7SSfVaJ"
+    }
   }
 }

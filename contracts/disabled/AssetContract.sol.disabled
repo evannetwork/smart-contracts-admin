@@ -1,0 +1,95 @@
+pragma solidity ^0.4.0;
+import "./BaseContract.sol";
+import "./DataStoreContainerString.sol";
+import "./DataStoreIndex.sol";
+import "./AssetContractInterface.sol";
+import "./EventHubAssetContract.sol";
+
+contract AssetContract is AssetContractInterface, BaseContract {
+
+    bytes32 constant eventsLabel = 0xaeb8ee1b0922df12bb504e71178ddc7c409f1cf4639136bcb7879524fee5a344; //web3.sha3('events')
+    bytes32 constant suppliesLabel = 0x25252f86be0ad8a3b8c53c5f551d6d8696acbbf648e7aacdfad0d425d551e2d6; //web3.sha3('supplies')
+    bytes32 constant statesLabel = 0x2fa6d82da0cf25ef6d4effd05c71711be959f4f93fc521bb9e98cf000395ab7f; //web3.sha3('states')
+    bytes32 constant subcontractsLabel = 0x33baa6f316fab89cb11f57cf36f92fc446eeabbee455d30c346989e18dba49c4; //web3.sha3('subcontracts')
+    DataStoreIndex public db;
+    mapping (bytes32 => string) public hashMapping;
+
+    function AssetContract(address businessCenter, address _provider, bytes32 _contractDefinition) BaseContract(businessCenter, _provider, sha3("AssetContract"), _contractDefinition) {
+        contractState = ContractState.Draft;
+        created = now;
+    }
+
+    function init(DataStoreIndex oldDb, bytes32 domain, address ensAddress, bool allowConsumerInviteIn) only_owner {
+        if (address(oldDb) != 0x0) {
+          db = oldDb;
+        } else {
+          DataStoreMap data = new DataStoreMap();
+          db = new DataStoreIndex(data);
+          data.transferOwnership(db);
+        }
+        rootDomain = domain;
+        setEns(ensAddress);
+        allowConsumerInvite = allowConsumerInviteIn;
+    }
+
+    function createIndex(bytes32 label) only_owner {
+        DataStoreIndex suppliesIndex;
+        DataStoreMap suppliesData = new DataStoreMap();
+        suppliesIndex = new DataStoreIndex(suppliesData);
+        suppliesData.transferOwnership(suppliesIndex);
+
+        db.containerSet(label, bytes32(address(suppliesIndex)));
+    }
+
+    function addSupply(bytes32 _kind, string _hash) only_participant {
+        DataStoreMap newSupply = new DataStoreMap();
+        newSupply.set('kind', _kind);
+        newSupply.set('date', bytes32(now));
+        newSupply.set('from', bytes32(msg.sender));
+        newSupply.set('hash', bytes32(address(new DataStoreContainerString("String", _hash))));
+
+        db.listEntryAdd(suppliesLabel, bytes32(address(newSupply)));
+
+        EventHubAssetContract eventHub = EventHubAssetContract(getAddr(sha3(rootDomain, eventsLabel)));
+        eventHub.sendAssetContractEvent(uint(EventHubAssetContract.AssetEventType.Add), this, suppliesLabel);
+    }
+
+    function addState(bytes32 _kind, string _hash, bytes32 extraData) only_participant {
+        DataStoreMap newState = new DataStoreMap();
+        newState.set('kind', _kind);
+        newState.set('date', bytes32(now));
+        newState.set('from', bytes32(msg.sender));
+        newState.set('hash', bytes32(address(new DataStoreContainerString("String", _hash))));
+
+        db.listEntryAdd(statesLabel, bytes32(address(newState)));
+
+        EventHubAssetContract eventHub = EventHubAssetContract(getAddr(sha3(rootDomain, eventsLabel)));
+        eventHub.sendAssetContractEvent(uint(EventHubAssetContract.AssetEventType.Add), this, statesLabel, extraData);
+    }
+
+    function addSubcontract(address subcontract) only_participant {
+        db.listEntryAdd(subcontractsLabel, bytes32(subcontract));
+        EventHubAssetContract eventHub = EventHubAssetContract(getAddr(sha3(rootDomain, eventsLabel)));
+        eventHub.sendAssetContractEvent(uint(EventHubAssetContract.AssetEventType.Add), this, subcontractsLabel, bytes32(subcontract));
+    }
+
+    function removeSubcontract(address subcontract) only_owner {
+        var (index, okay) = db.listIndexOf(subcontractsLabel, bytes32(subcontract));
+        assert(okay);
+        db.listEntryRemove(subcontractsLabel, index);
+        EventHubAssetContract eventHub = EventHubAssetContract(getAddr(sha3(rootDomain, eventsLabel)));
+        eventHub.sendAssetContractEvent(uint(EventHubAssetContract.AssetEventType.Remove), this, subcontractsLabel);
+    }
+
+    function getIndex(bytes32 label) constant returns (DataStoreIndex) {
+      return db.indexGet(label);
+    }
+
+    function getDb() constant returns (DataStoreIndex) {
+      return db;
+    }
+
+    function migrateTo(address newBc) only_owner {
+        db.transferOwnership(newBc);
+    }
+}

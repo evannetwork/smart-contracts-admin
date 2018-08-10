@@ -27,50 +27,24 @@
 
 pragma solidity 0.4.20;
 
-import "./Core.sol";
-import "./EnsReader.sol";
 import "./DataStoreIndexInterface.sol";
-import "./ProfileIndexInterface.sol";
 
 
 /** @title Profile Index Contract - stores all personal profile containers */
-contract ProfileIndex is ProfileIndexInterface, Owned, EnsReader {
-    bytes32 private constant EVENTHUB_LABEL =
-        0xea14ea6d138254c1a2931c6a19f6888c7b52f512d165cfa428183a53dd9dfb8c; //web3.keccak256('eventhub')
-
-    bytes32 private constant PROFILE_LABEL =
-        0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d; //web3.keccak256('profile')
-
-    DataStoreIndexInterface private db;
-
-    /**@dev Creates new RessourceContract.
-     * @param database previously created index
-     */
-    function ProfileIndex(DataStoreIndexInterface database) public {
-        db = database;
-    }
-
+interface ProfileIndexInterface {
     /**@dev tries to get the ipld hash for a given label
      * @param account accountid for profile
      * @return hash of the label
      */
-    function getProfile(address account) public constant returns (address) {
-        bytes32 keyForIndex = keccak256(PROFILE_LABEL, keccak256(bytes32(account)));
-        return address(db.containerGet(keyForIndex));
-    }
+    function getProfile(address account) public constant returns (address);
 
     /**@dev sets a hash for a given container label
      * @param _address contract address that holds the information.
      */
-    function setMyProfile(address _address) public {
-        bytes32 keyForIndex = keccak256(PROFILE_LABEL, keccak256(bytes32(msg.sender)));
-        db.containerSet(keyForIndex, bytes32(_address));
-    }
+    function setMyProfile(address _address) public;
 
     /**@dev returns the global db for migration purposes
      * @return global db
      */    
-    function getStorage() public constant returns (DataStoreIndexInterface) {
-        return db;
-    }
+    function getStorage() public constant returns (DataStoreIndexInterface);
 }

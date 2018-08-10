@@ -25,8 +25,12 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+contract EventHubMailBox {
+  event MailEvent(address indexed sender, address indexed recipient, uint256 mailId);
+
+  function sendMailEvent(address recipient, uint256 mailId) {
+    MailEvent(msg.sender, recipient, mailId);
+  }
+}

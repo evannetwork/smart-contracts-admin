@@ -25,8 +25,26 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+import "./Core.sol";
+
+contract DataStoreMap is OwnedModerated {
+    mapping(bytes32 => bytes32) data;
+
+    function remove(bytes32 key) only_owner_or_moderator {
+        delete data[key];
+    }
+    
+    function set(bytes32 key, bytes32 value) only_owner_or_moderator {
+        data[key] = value;
+    }
+
+    function get(bytes32 key) constant returns (bytes32) {
+        return data[key];
+    }
+
+    function has(bytes32 key) constant returns (bool) {
+        return data[key] != 0x0;
+    }
+}

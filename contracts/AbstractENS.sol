@@ -25,8 +25,19 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+contract AbstractENS {
+    function owner(bytes32) constant returns(address);
+    function resolver(bytes32) constant returns(address);
+    function ttl(bytes32) constant returns(uint64);
+    function setOwner(bytes32, address);
+    function setSubnodeOwner(bytes32, bytes32, address);
+    function setResolver(bytes32, address);
+    function setTTL(bytes32, uint64);
+
+    event Transfer(bytes32 indexed node, address newOwner);
+    event NewOwner(bytes32 indexed node, bytes32 indexed label, address newOwner);
+    event NewResolver(bytes32 indexed node, address newResolver);
+    event NewTTL(bytes32 indexed node, uint64 newTtl);
+}

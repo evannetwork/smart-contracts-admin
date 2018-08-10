@@ -1,17 +1,26 @@
 {
   "license": "AGPL-3.0-only",
-  "author": "evan.network GmbH",
-  "description": "evan.network admin smart contracts",
+  "author": "contractus",
+  "name": "smart-contracts",
+  "description": "contractus smart contracts",
+  "version": "0.1.0",
+  "main": "index.js",
   "engines": {
     "node": ">=8.0.0"
   },
-  "homepage": "https://evannetwork.github.io/",
-  "keywords": [
-    "blockchain",
-    "ethereum",
-    "smart-contracts"
-  ],
-  "main": "index.js",
-  "name": "@evan.network/smart-contracts-admin",
-  "version": "1.0.2"
+  "dependencies": {
+    "ens": "github:ethereum/ens#6c0cf08eab71b41d54ac516138d4e1f2c32ff5c9",
+    "findup-sync": "^2.0.0",
+    "fs-readdir-recursive": "^1.1.0",
+    "solc": "0.4.20"
+  },
+  "devDependencies": {
+    "@soldoc/soldoc": "^0.4.0"
+  },
+  "peerDependencies": {
+    "actionhero": "^18.1.0"
+  },
+  "scripts": {
+    "build-docu": "node ./scripts/build-docu.js"
+  }
 }

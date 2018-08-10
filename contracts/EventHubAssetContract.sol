@@ -25,8 +25,16 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+
+contract EventHubAssetContract {
+
+    enum AssetEventType { Add, Remove, Modified }
+
+    event AssetContractEvent(address indexed sender, uint eventType, address indexed contractAddress, bytes32 indexed label);
+
+    function sendAssetContractEvent(uint eventType, address contractAddress, bytes32 label) {
+        AssetContractEvent(msg.sender, eventType, contractAddress, label);
+    }
+}

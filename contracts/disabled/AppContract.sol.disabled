@@ -1,0 +1,45 @@
+pragma solidity ^0.4.0;
+import "./AppContractInterface.sol";
+import "./BaseContract.sol";
+
+contract AppContract is AppContractInterface, BaseContract {
+    Service[] private services;
+    mapping(string => uint) private name2Service;
+
+    function AppContract(address _businessCenter, address _provider, bytes32 _contractDefinition) BaseContract(_businessCenter, _provider, sha3("AppContract"), _contractDefinition) {
+        contractState = ContractState.Draft;
+        created = now;
+    }
+
+    function addService(string name, string url, string hash, Category category) only_owner in_state(ContractState.Draft) {
+        uint id = services.length;
+        services.length++;
+        services[id].name = name;
+        services[id].url = url;
+        services[id].hash = hash;
+        services[id].category = category;
+        name2Service[name] = id;
+        serviceNames.length++;
+        serviceNames[id] = name;
+    }
+
+    function getServiceUrl(string name) constant only_participant not_in_state(ContractState.Rejected) not_in_state(ContractState.Terminated) returns (string) {
+        return services[name2Service[name]].url;
+    }
+
+    function getServiceHash(string name) constant only_participant not_in_state(ContractState.Rejected) not_in_state(ContractState.Terminated) returns (string) {
+        return services[name2Service[name]].hash;
+    }
+
+    function getServiceCategory(string name) constant only_participant not_in_state(ContractState.Rejected) not_in_state(ContractState.Terminated) returns (Category) {
+        return services[name2Service[name]].category;
+    }
+
+    function getServiceName(uint index) constant returns (string) {
+        return serviceNames[index];
+    }
+
+    function getServiceCount() constant returns (uint) {
+        return services.length;
+    }
+}

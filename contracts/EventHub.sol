@@ -25,8 +25,14 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+import "./EventHubBusinessCenter.sol";
+import "./EventHubAssetContract.sol";
+import "./EventHubMailBox.sol";
+import "./EventHubDataContract.sol";
+
+
+contract EventHub is EventHubBusinessCenter, EventHubAssetContract, EventHubMailBox, EventHubDataContract {
+    uint constant public VERSION_ID = 3;
+}

@@ -1,0 +1,21 @@
+pragma solidity ^0.4.0;
+
+import "./BaseContractInterface.sol";
+
+contract AppContractInterface is BaseContractInterface {
+  enum Category { OpenApi, Flow, Widget }
+  struct Service {
+    string name;
+    string url;
+    string hash;
+    Category category;
+  }
+  string[] public serviceNames;
+
+  function addService(string name, string url, string hash, Category category);
+  function getServiceUrl(string name) constant returns (string);
+  function getServiceHash(string name) constant returns (string);
+  function getServiceCategory(string name) constant returns (Category);
+  function getServiceName(uint index) constant returns (string);
+  function getServiceCount() constant returns (uint);
+}

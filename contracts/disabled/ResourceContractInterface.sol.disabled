@@ -1,0 +1,64 @@
+pragma solidity ^0.4.0;
+
+import "./BaseContractInterface.sol";
+
+/** @title Resource Contract - stores approval states and references to documents */
+contract ResourceContractInterface is BaseContractInterface {
+    enum FileState { PendingApproval, Approved }
+
+    event FileUpdateEvent(bytes32 indexed file, address indexed member, uint indexed state);
+
+    uint public VERSION_ID = 1;
+    uint public EVENT_VERSION_ID = 1;
+    bool public isGroupAuthored;
+    string public keys;
+    string public folderReference;
+
+    /**@dev Creates prerequisites for working with the contract, required before first usage.
+     * @param newIsGroupAuthored True if all participants can contribute documents.
+     */
+    function init(bool newIsGroupAuthored);
+
+    /**@dev Set (encrypted) keys for encryption.
+     * @param newKeys Reference to encrytpion key.
+     */
+    function setKeys(string newKeys);
+
+    /**@dev Create or update data entry
+     * @param file (Hashed) reference to a file.
+     * @param kind File kind. Can have up to 32 bytes.
+     * @param newFolderReference Reference to file listing.
+     */
+    function updateFile(bytes32 file, bytes32 kind, string newFolderReference);
+
+    /**@dev Update the state of a file.
+     * @param file (Hashed) reference to a file.
+     * @param state State of the file, can have up to 1 byte
+     */
+    function setFileState(bytes32 file, uint state);
+
+    /**@dev Returns kind for a given file.
+     * @param file (Hashed) reference to a file.
+     * @return kind Files kind as a bytes32..
+     */
+    function getFileKind(bytes32 file) constant returns(bytes32 kind);
+
+    /**@dev Returns a bytes32 state of a given file reference.
+     * @param file (Hashed) reference to a file.
+     * @param index Index in files event list.
+     * @return entry File state entry represented in a byte32 object.
+     */
+    function getFileStateEntry(bytes32 file, uint index) constant returns(bytes32 entry);
+
+    /**@dev Returns last modified of a file state.
+     * @param file (Hashed) reference to a file.
+     * @return lastModified Time when state was last modified.
+     */
+    function getFileStateLastModified(bytes32 file) constant returns(uint lastModified);
+
+    /**@dev Returns length of files event list.
+     * @param file (Hashed) reference to a file.
+     * @return index Index in files event list.
+     */
+    function getFileStateLength(bytes32 file) constant returns(uint length);
+}

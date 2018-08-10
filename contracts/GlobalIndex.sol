@@ -25,8 +25,25 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+import "./Core.sol";
+import "./DataStoreIndex.sol";
+
+contract GlobalIndex is Owned {
+    bytes32 constant memberLabel = 0x14ceb1149cdab84b395151a21d3de6707dd76fff3e7bc4e018925a9986b7f72f; //web3.sha3('member')
+    DataStoreIndex public db;
+
+    function GlobalIndex(DataStoreIndex database) {
+        db = database;
+    }
+
+    function getMyIndex() constant returns (DataStoreIndex) {
+      bytes32 keyForMemberIndex = sha3(memberLabel, sha3(bytes32(msg.sender)));
+      return DataStoreIndex(db.indexGet(keyForMemberIndex));
+    }
+
+    function getStorage() only_owner constant returns (DataStoreIndex) {
+      return db;
+    }
+}

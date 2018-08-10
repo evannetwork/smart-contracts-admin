@@ -33,12 +33,12 @@ import "./DSRolesPerContract.sol";
 import "./DataContract.sol";
 
 
-contract DigitalTwinDataContractFactory is BaseContractFactory {
+contract TestDataContractFactory is BaseContractFactory {
     uint public constant VERSION_ID = 3;
 
     function createContract(address businessCenter, address provider, bytes32 _contractDefinition, address ensAddress
             ) public returns (address) {
-        DataContract newContract = new DataContract(provider, keccak256("DigitalTwinDataContract"), _contractDefinition, ensAddress);
+        DataContract newContract = new DataContract(provider, keccak256("TestDataContract"), _contractDefinition, ensAddress);
         DSRolesPerContract roles = createRoles(provider, newContract);
         newContract.setAuthority(roles);
         bytes32 contractType = newContract.contractType();
@@ -46,7 +46,7 @@ contract DigitalTwinDataContractFactory is BaseContractFactory {
         newContract.setOwner(provider);
         roles.setAuthority(roles);
         roles.setOwner(provider);
-        ContractCreated(keccak256("DigitalTwinDataContract"), newContract);
+        ContractCreated(keccak256("TestDataContract"), newContract);
         return newContract;
     }
 
@@ -62,43 +62,56 @@ contract DigitalTwinDataContractFactory is BaseContractFactory {
 
         // role 2 permission
         roles.setRoleCapability(ownerRole, 0, bytes4(keccak256("init(bytes32,bool)")), true);
-        // member permissions
+        roles.setRoleCapability(ownerRole, 0, bytes4(keccak256("moveListEntry(bytes32,uint256,bytes32[])")), true);
+        roles.setRoleCapability(ownerRole, 0, bytes4(keccak256("removeListEntry(bytes32,uint256)")), true);
+
+        // role 2 permission
         roles.setRoleCapability(memberRole, 0, bytes4(keccak256("addListEntries(bytes32[],bytes32[])")), true);
-        roles.setRoleCapability(memberRole, 0, bytes4(keccak256("moveListEntry(bytes32,uint256,bytes32[])")), true);
-        roles.setRoleCapability(memberRole, 0, bytes4(keccak256("removeListEntry(bytes32,uint256)")), true);
         roles.setRoleCapability(memberRole, 0, bytes4(keccak256("setEntry(bytes32,bytes32)")), true);
+        roles.setRoleCapability(memberRole, 0, bytes4(keccak256("setMappingValue(bytes32,bytes32,bytes32)")), true);
 
         // role 2 operation permission
         // entries
         roles.setRoleOperationCapability(
+            ownerRole, 0, keccak256(keccak256(
+            dc.ENTRY_LABEL(),
+            keccak256("entry_settable_by_owner")), dc.SET_LABEL()), true);
+        roles.setRoleOperationCapability(
             memberRole, 0, keccak256(keccak256(
             dc.ENTRY_LABEL(),
-            keccak256("technicalData")), dc.SET_LABEL()), true);
+            keccak256("entry_settable_by_member")), dc.SET_LABEL()), true);
         // lists
         roles.setRoleOperationCapability(
-            memberRole, 0, keccak256(keccak256(
+            ownerRole, 0, keccak256(keccak256(
             dc.LISTENTRY_LABEL(),
-            keccak256("rentalContracts")), dc.SET_LABEL()), true);
+            keccak256("list_settable_by_owner")), dc.SET_LABEL()), true);
         roles.setRoleOperationCapability(
             memberRole, 0, keccak256(keccak256(
             dc.LISTENTRY_LABEL(),
-            keccak256("rentalContracts")), dc.REMOVE_LABEL()), true);
+            keccak256("list_settable_by_member")), dc.SET_LABEL()), true);
+        // mappings
+        roles.setRoleOperationCapability(
+            ownerRole, 0, keccak256(keccak256(
+            dc.MAPPINGENTRY_LABEL(),
+            keccak256("mapping_settable_by_owner")), dc.SET_LABEL()), true);
+        roles.setRoleOperationCapability(
+            memberRole, 0, keccak256(keccak256(
+            dc.MAPPINGENTRY_LABEL(),
+            keccak256("mapping_settable_by_member")), dc.SET_LABEL()), true);
+
+        // owner: add, remove; member: add
+        roles.setRoleOperationCapability(
+            ownerRole, 0, keccak256(keccak256(
+            dc.LISTENTRY_LABEL(),
+            keccak256("list_removable_by_owner")), dc.SET_LABEL()), true);
+        roles.setRoleOperationCapability(
+            ownerRole, 0, keccak256(keccak256(
+            dc.LISTENTRY_LABEL(),
+            keccak256("list_removable_by_owner")), dc.REMOVE_LABEL()), true);
         roles.setRoleOperationCapability(
             memberRole, 0, keccak256(keccak256(
             dc.LISTENTRY_LABEL(),
-            keccak256("tasks")), dc.SET_LABEL()), true);
-        roles.setRoleOperationCapability(
-            memberRole, 0, keccak256(keccak256(
-            dc.LISTENTRY_LABEL(),
-            keccak256("tasks")), dc.REMOVE_LABEL()), true);
-        roles.setRoleOperationCapability(
-            memberRole, 0, keccak256(keccak256(
-            dc.LISTENTRY_LABEL(),
-            keccak256("activities")), dc.SET_LABEL()), true);
-        roles.setRoleOperationCapability(
-            memberRole, 0, keccak256(keccak256(
-            dc.LISTENTRY_LABEL(),
-            keccak256("activities")), dc.REMOVE_LABEL()), true);
+            keccak256("list_removable_by_owner")), dc.SET_LABEL()), true);
 
         // contract states
         roles.setRoleOperationCapability(

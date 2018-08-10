@@ -36,9 +36,9 @@ import "./DataContract.sol";
 contract TaskDataContractFactory is BaseContractFactory {
     uint public constant VERSION_ID = 3;
 
-    function createContract(address businessCenter, address provider, bytes32 _contractDescription, address ensAddress
+    function createContract(address businessCenter, address provider, bytes32 _contractDefinition, address ensAddress
             ) public returns (address) {
-        DataContract newContract = new DataContract(provider, keccak256("TaskDataContract"), _contractDescription, ensAddress);
+        DataContract newContract = new DataContract(provider, keccak256("TaskDataContract"), _contractDefinition, ensAddress);
         DSRolesPerContract roles = createRoles(provider, newContract);
         newContract.setAuthority(roles);
         bytes32 contractType = newContract.contractType();

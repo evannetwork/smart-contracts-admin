@@ -3,6 +3,7 @@
 .idea/*
 contracts/compiled.json
 contracts/compiled.js
+docs/*
 node_modules/
 npm-debug.log
 package-lock.json

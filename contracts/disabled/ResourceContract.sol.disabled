@@ -1,0 +1,113 @@
+pragma solidity ^0.4.0;
+
+import "./BaseContract.sol";
+import "./ResourceContractInterface.sol";
+import "./DataStoreIndex.sol";
+
+/** @title Resource Contract - stores approval states and references to documents */
+contract ResourceContract is ResourceContractInterface, BaseContract {
+    DataStoreIndex private db;
+    bytes32 private filesHash = 0xed4000a753605f0210133bfd9f16f70487ec442247ab8a19a743a189c97616de;  // web3.sha3('files')
+    bytes32 private kindsHash = 0x83c0c7013d17118f01f19373ab02997fd55ca310a97d00e06dad9daec7082854;  // web3.sha3('kinds')
+
+    /**@dev Creates new RessourceContract.
+     * @param _businessCenter BusinessCenter where this contract is located at.
+     * @param _provider Owner of this contract.
+     */
+    function ResourceContract(address _businessCenter, address _provider, bytes32 _contractDefinition) BaseContract(_businessCenter, _provider, sha3("ResourceContract"), _contractDefinition) {
+        contractState = ContractState.Draft;
+        created = now;
+    }
+
+    /**@dev Set up contract, required before first usage.
+     * @param newIsGroupAuthored True if all participants can contribute documents.
+     */
+    function init(bool newIsGroupAuthored) only_owner {
+        assert(address(db) == 0x0);
+        isGroupAuthored = newIsGroupAuthored;
+        DataStoreMap data = new DataStoreMap();
+        db = new DataStoreIndex(data);
+        data.transferOwnership(db);
+    }
+
+    /**@dev Set (encrypted) keys for encryption.
+     * @param _keys Reference to encrytpion key.
+     */
+    function setKeys(string _keys) only_owner {
+      keys = _keys;
+    }
+
+    /**@dev Create or update data entry
+     * @param file (Hashed) reference to a file.
+     * @param kind File kind. Can have up to 32 bytes.
+     * @param _folderReference Reference to file listing.
+     */
+    function updateFile(bytes32 file, bytes32 kind, string _folderReference) {
+        assert(msg.sender == owner || (isGroupAuthored && isConsumer(msg.sender)));
+        folderReference = _folderReference;
+        db.containerSet(sha3(kindsHash, file), kind);
+        addEventEntry(file, uint(FileState.PendingApproval));
+    }
+
+    /**@dev Update the state of a file.
+     * @param file (Hashed) reference to a file.
+     * @param state State of the file, can have up to 1 byte
+     */
+    function setFileState(bytes32 file, uint state) only_participant {
+        addEventEntry(file, state);
+    }
+
+    /**@dev Overwriting a consumers state is forbidden, so this function always throws.
+     */
+    function changeConsumerState(address, ConsumerState) only_owner {
+        // forbid changes for other members
+        assert(false);
+    }
+
+    /**@dev Returns kind for a given file.
+     * @param file (Hashed) reference to a file.
+     * @return kind Files kind as a bytes32..
+     */
+    function getFileKind(bytes32 file) constant returns(bytes32 kind) {
+      return db.containerGet(sha3(kindsHash, file));
+    }
+
+    /**@dev Returns a bytes32 state of a given file reference.
+     * @param file (Hashed) reference to a file.
+     * @param index Index in files event list.
+     * @return entry File state entry represented in a byte32 object.
+     */
+    function getFileStateEntry(bytes32 file, uint index) constant returns(bytes32 entry) {
+      return db.listEntryGet(sha3(filesHash, file), index);
+    }
+
+    /**@dev Returns last modified of a file state.
+     * @param file (Hashed) reference to a file.
+     * @return lastModified Time when state was last modified.
+     */
+    function getFileStateLastModified(bytes32 file) constant returns(uint lastModified) {
+      return db.listLastModified(sha3(filesHash, file));
+    }
+
+    /**@dev Returns length of files event list.
+     * @param file (Hashed) reference to a file.
+     * @return index Index in files event list.
+     */
+    function getFileStateLength(bytes32 file) constant returns(uint length) {
+      return db.listLength(sha3(filesHash, file));
+    }
+
+    /**@dev Writes to internal file log and creates a Solidity event.
+     * @param file (Hashed) reference to a file.
+     * @param state State of the file, can have up to 1 byte
+     */
+    function addEventEntry(bytes32 file, uint state) private {
+        bytes32 eventEntry = 0;
+        eventEntry = eventEntry | bytes32(msg.sender) << 96;
+        eventEntry = eventEntry | bytes32(now) << 32;
+        eventEntry = eventEntry | bytes32(state) << 8;
+        eventEntry = eventEntry | bytes32(EVENT_VERSION_ID);
+        db.listEntryAdd(sha3(filesHash, file), eventEntry);
+        FileUpdateEvent(file, msg.sender, state);
+    }
+}

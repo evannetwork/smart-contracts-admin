@@ -25,8 +25,15 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity 0.4.20;
 
-module.exports = {
-  Solc
-};
+import "./ds-auth/auth.sol";
+
+
+contract Shared is DSAuth {
+    bytes32 public sharing;
+
+    function setSharing(bytes32 _sharing) public auth {
+        sharing = _sharing;
+    }
+}

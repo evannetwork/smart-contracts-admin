@@ -25,8 +25,14 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity ^0.4.0;
 
-module.exports = {
-  Solc
-};
+import "./Core.sol";
+
+contract DataStoreContainer is Owned {
+    string public containerType;
+
+    function DataStoreContainer(string newType) {
+        containerType = newType;
+    }
+}

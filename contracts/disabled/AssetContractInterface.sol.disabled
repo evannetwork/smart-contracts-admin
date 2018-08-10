@@ -1,0 +1,20 @@
+pragma solidity ^0.4.0;
+import "./BaseContractInterface.sol";
+import "./DataStoreIndex.sol";
+import "./EnsReader.sol";
+
+contract AssetContractInterface is BaseContractInterface, EnsReader {
+
+    function init(DataStoreIndex oldDb, bytes32 domain, address ensAddress, bool allowConsumerInviteIn);
+    function createIndex(bytes32 label);
+
+    function addSupply(bytes32 _kind, string _hash);
+    function addState(bytes32 _kind, string _hash, bytes32 extraData);
+    function addSubcontract(address subcontract);
+    function removeSubcontract(address subcontract);
+
+    function getIndex(bytes32 label) constant returns (DataStoreIndex);
+    function getDb() constant returns (DataStoreIndex);
+
+    function migrateTo(address newContract);
+}

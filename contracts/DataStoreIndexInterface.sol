@@ -25,8 +25,33 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+pragma solidity 0.4.20;
 
-module.exports = {
-  Solc
-};
+
+interface DataStoreIndexInterface {
+    function containerGet(bytes32 key) public constant returns (bytes32);
+
+    function containerHas(bytes32 key) public constant returns (bool);
+
+    function containerRemove(bytes32 key) public;
+
+    function containerSet(bytes32 key, bytes32 value) public;
+
+    function indexGet(bytes32 key) public constant returns (DataStoreIndexInterface);
+
+    function indexMakeModerator(bytes32 key) public;
+
+    function listEntryAdd(bytes32 containerName, bytes32 value) public;
+
+    function listEntryRemove(bytes32 containerNames, uint index) public;
+
+    function listEntryUpdate(bytes32 containerNames, uint index, bytes32 value) public;
+
+    function listEntryGet(bytes32 containerName, uint index) public constant returns(bytes32);
+
+    function listIndexOf(bytes32 containerName, bytes32 value) public constant returns(uint index, bool okay);
+
+    function listLastModified(bytes32 containerName) public constant returns(uint);
+
+    function listLength(bytes32 containerName) public constant returns(uint);
+}

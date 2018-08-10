@@ -25,8 +25,17 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-var Solc = require('./lib/solc');
+const soldoc = require('@soldoc/soldoc')
 
-module.exports = {
-  Solc
-};
+/* default options */
+soldoc.defaults = {
+  in: '/home/swo/swo/contractus/smart-contracts/contracts',
+  out: '/home/swo/swo/contractus/smart-contracts/docs',
+  /* json: undefined, */
+  /* repoUrl: undefined, */
+  /* log: undefined, */
+  quiet: false,
+  theme: '@soldoc/markdown',
+}
+
+return soldoc({})

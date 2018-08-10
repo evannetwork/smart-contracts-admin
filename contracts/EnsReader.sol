@@ -25,29 +25,23 @@
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
 */
 
-//! Certifier contract, taken from ethcore/sms-verification
-//!
-//! Copyright 2016 Gavin Wood, Parity Technologies Ltd.
-//!
-//! Licensed under the Apache License, Version 2.0 (the "License");
-//! you may not use this file except in compliance with the License.
-//! You may obtain a copy of the License at
-//!
-//!     http://www.apache.org/licenses/LICENSE-2.0
-//!
-//! Unless required by applicable law or agreed to in writing, software
-//! distributed under the License is distributed on an "AS IS" BASIS,
-//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//! See the License for the specific language governing permissions and
-//! limitations under the License.
+pragma solidity ^0.4.0;
 
-pragma solidity ^0.4.17;
+import "./AbstractENS.sol";
+import "./AbstractPublicResolver.sol";
 
-contract Certifier {
-  event Confirmed(address indexed who);
-  event Revoked(address indexed who);
-  function certified(address _who) constant public returns (bool);
-  function getData(address _who, string _field) constant public returns (bytes32) {}
-  function getAddress(address _who, string _field) constant public returns (address) {}
-  function getUint(address _who, string _field) constant public returns (uint) {}
+
+contract EnsReader {
+  // AbstractENS ens = AbstractENS($ENS_ADDRESS);
+  AbstractENS ens = AbstractENS(0x937bbC1d3874961CA38726E9cD07317ba81eD2e1);
+  // bytes32 rootDomain = $NAMEHASH_ROOT_DOMAIN;
+  bytes32 rootDomain = 0x01713a3bd6dccc828bbc37b3f42f3bc5555b16438783fabea9faf8c2243a0370;
+
+  function getAddr(bytes32 node) constant internal returns (address) {
+    return AbstractPublicResolver(ens.resolver(sha3(rootDomain, node))).addr(sha3(rootDomain, node));
+  }
+
+  function setEns(address ensAddress) internal {
+    ens = AbstractENS(ensAddress);
+  }
 }
