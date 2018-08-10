@@ -2,6 +2,8 @@
 
 ## Next Version
 ### Features
+- add `MailBoxInterface` as parent contract for `MailBox`
+
 ### Fixes
 ### Deprecations
 
