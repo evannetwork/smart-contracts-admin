@@ -1,4 +1,4 @@
-# smart-contracts
+# smart-contracts-admin
 ## Contract Usage
 ### DataContract
 Generic secured data storage contract for single properties and lists.
