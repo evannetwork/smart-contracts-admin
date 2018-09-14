@@ -120,13 +120,13 @@ contract SimpleRegistry is Owned, MetadataRegistry, OwnerRegistry, ReverseRegist
   }
 
   // Reverse registration.
-  function proposeReverse(string _name, address _who) only_owner_of(sha3(_name)) returns (bool success) {
-    var sha3Name = sha3(_name);
-    if (entries[sha3Name].reverse != 0 && sha3(reverses[entries[sha3Name].reverse]) == sha3Name) {
-      delete reverses[entries[sha3Name].reverse];
-      ReverseRemoved(_name, entries[sha3Name].reverse);
+  function proposeReverse(string _name, address _who) only_owner_of(keccak256(_name)) returns (bool success) {
+    var keccak256Name = keccak256(_name);
+    if (entries[keccak256Name].reverse != 0 && keccak256(reverses[entries[keccak256Name].reverse]) == keccak256Name) {
+      delete reverses[entries[keccak256Name].reverse];
+      ReverseRemoved(_name, entries[keccak256Name].reverse);
     }
-    entries[sha3Name].reverse = _who;
+    entries[keccak256Name].reverse = _who;
     ReverseProposed(_name, _who);
     return true;
   }
@@ -145,7 +145,7 @@ contract SimpleRegistry is Owned, MetadataRegistry, OwnerRegistry, ReverseRegist
 
   function removeReverse() {
     ReverseRemoved(reverses[msg.sender], msg.sender);
-    delete entries[sha3(reverses[msg.sender])].reverse;
+    delete entries[keccak256(reverses[msg.sender])].reverse;
     delete reverses[msg.sender];
   }
 
@@ -165,7 +165,7 @@ contract SimpleRegistry is Owned, MetadataRegistry, OwnerRegistry, ReverseRegist
 
   modifier when_unreserved(bytes32 _name) { if (entries[_name].owner != 0) return; _; }
   modifier only_owner_of(bytes32 _name) { if (entries[_name].owner != msg.sender) return; _; }
-  modifier when_proposed(string _name) { if (entries[sha3(_name)].reverse != msg.sender) return; _; }
+  modifier when_proposed(string _name) { if (entries[keccak256(_name)].reverse != msg.sender) return; _; }
   modifier when_fee_paid { if (msg.value < fee) return; _; }
 
   mapping (bytes32 => Entry) entries;

@@ -9,6 +9,7 @@
 ### Features
 - add `MailBoxInterface` as parent contract for `MailBox`
 - add `ClaimsENS.sol` and `ClaimsPublicResolver.sol` for managing claims on-chain
+- use `keccak256` instead of `sha3` for hashing
 
 ## Version 1.0.2
 ### Features
