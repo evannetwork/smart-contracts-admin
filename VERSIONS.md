@@ -2,11 +2,13 @@
 
 ## Next Version
 ### Features
-- add `MailBoxInterface` as parent contract for `MailBox`
-- add `ClaimsENS.sol` and `ClaimsPublicResolver.sol` for managing claims on-chain
-
 ### Fixes
 ### Deprecations
+
+## Version 1.1.0
+### Features
+- add `MailBoxInterface` as parent contract for `MailBox`
+- add `ClaimsENS.sol` and `ClaimsPublicResolver.sol` for managing claims on-chain
 
 ## Version 1.0.2
 ### Features
