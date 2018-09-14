@@ -5,6 +5,11 @@
 ### Fixes
 ### Deprecations
 
+## Version 1.1.0
+### Features
+- add `MailBoxInterface` as parent contract for `MailBox`
+- add `ClaimsENS.sol` and `ClaimsPublicResolver.sol` for managing claims on-chain
+
 ## Version 1.0.2
 ### Features
 - add minimum permissions to `TransactionPermissionContract.sol`, that allow to define minimum permissions for all accounts (even if not added to contracts permitted object)

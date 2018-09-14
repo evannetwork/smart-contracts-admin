@@ -1,42 +1,40 @@
 /*
-  Copyright (C) 2018-present evan GmbH. 
-  
+  Copyright (C) 2018-present evan GmbH.
+
   This program is free software: you can redistribute it and/or modify it
-  under the terms of the GNU Affero General Public License, version 3, 
-  as published by the Free Software Foundation. 
-  
-  This program is distributed in the hope that it will be useful, 
-  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+  under the terms of the GNU Affero General Public License, version 3,
+  as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Affero General Public License for more details. 
-  
-  You should have received a copy of the GNU Affero General Public License along with this program.
-  If not, see http://www.gnu.org/licenses/ or write to the
-  
-  Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA, 02110-1301 USA,
-  
-  or download the license from the following URL: https://evan.network/license/ 
-  
-  You can be released from the requirements of the GNU Affero General Public License
-  by purchasing a commercial license.
-  Buying such a license is mandatory as soon as you use this software or parts of it
-  on other blockchains than evan.network. 
-  
-  For more information, please contact evan GmbH at this address: https://evan.network/license/ 
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see http://www.gnu.org/licenses/ or
+  write to the Free Software Foundation, Inc., 51 Franklin Street,
+  Fifth Floor, Boston, MA, 02110-1301 USA, or download the license from
+  the following URL: https://evan.network/license/
+
+  You can be released from the requirements of the GNU Affero General Public
+  License by purchasing a commercial license.
+  Buying such a license is mandatory as soon as you use this software or parts
+  of it on other blockchains than evan.network.
+
+  For more information, please contact evan GmbH at this address:
+  https://evan.network/license/
 */
 
 pragma solidity ^0.4.0;
 
-import "./Core.sol";
-import "./EnsReader.sol";
-import "./DataStoreIndex.sol";
+import "./MailBoxInterface.sol";
 import "./EventHubMailBox.sol";
 // import "./ProfileIndex.sol";
 // import "./DataContractInterface.sol";
 
 
 /** @title MailBox Contract - stores messages and replies */
-contract MailBox is Owned, EnsReader {
+contract MailBox is MailBoxInterface {
 
     //web3.sha3('addressbooks') 0xab2cd606d9bab2fcf61e4cdadd695a76752cda02740e85d1ae4046c311f1c192; 
     bytes32 constant MAILS_LABEL = 0x6131329eed5a23aee1d464e8f88d6490e3ef07a83f8709a0f18adf40db7fc64c; //web3.sha3('mails')
@@ -48,7 +46,6 @@ contract MailBox is Owned, EnsReader {
     bytes32 constant MAIL2ACCOUNT2BALANCE_LABEL = 0xf25aad3290e12dc6011a6c9ae45640eec0930ed21058f0595474cad21e91b7d7; //web3.sha3('mail2Account2Balance')
     // bytes32 constant PROFILE_INDEX_LABEL = 0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d; //web3.sha3('profile')
     // bytes32 constant CONTACTS_LABEL = 0x8417ef2e3e7bb6630d90a4cdcc188db4bcc27d6b2d8891b376ef771499bb4299; //web3.sha3('contacts')
-    DataStoreIndex public db;
     uint256 mailCount = 0;
 
 
@@ -165,6 +162,11 @@ contract MailBox is Owned, EnsReader {
         }
     }
 
+    /**@dev get funds from mail or answer and transfer to account
+     *
+     * @param mailId id a mail
+     * @param recipient account, that receives withdrawed funds
+     */
     function withdrawFromMail(uint256 mailId, address recipient) public {
         // prevent sending EVEs to 0x0
         assert(recipient != address(0));
@@ -174,6 +176,10 @@ contract MailBox is Owned, EnsReader {
         recipient.transfer(balance);
     }
 
+    /**@dev get check balance of a mail or answer
+     *
+     * @param mailId id of the mail to check
+     */
     function getBalanceFromMail(uint256 mailId) public constant returns(uint256) {
         bytes32 key = sha3(MAIL2ACCOUNT2BALANCE_LABEL, bytes32(mailId), bytes32(msg.sender));
         return (uint256)(db.containerGet(key));
