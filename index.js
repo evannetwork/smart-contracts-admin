@@ -24,16 +24,16 @@
   For more information, please contact evan GmbH at this address:
   https://evan.network/license/
 */
+const path = require('path');
 
-const { sep } = require('path');
 
 module.exports = {
-  getContractsPath: () => {
+  getContractPaths: () => {
     return [
-      __dirname,
-      sep,
-      'contracts',
-    ].join('');
+      `${__dirname}/contracts`,
+      `${__dirname}/node_modules/ethereum-api/oraclizeAPI_0.4.sol`,
+      `${__dirname}/node_modules/solidity-stringutils/src/strings.sol`,
+    ];
   },
 };
 

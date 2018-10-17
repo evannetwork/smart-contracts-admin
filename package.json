@@ -13,5 +13,8 @@
   ],
   "main": "index.js",
   "name": "@evan.network/smart-contracts-admin",
+  "scripts": {
+    "install": "./scripts/install-additional-contracts.sh"
+  },
   "version": "1.1.0"
 }
