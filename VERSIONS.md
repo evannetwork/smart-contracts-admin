@@ -3,8 +3,7 @@
 ## Next Version
 ### Features
 - add `TicketVendor` and `TicketVendorInterface`, that allows to create EVE exchange tickets for bridge
-- change name and output of `getContractsPath` (--> `getContractPaths`) in `index.js`
-  usage requires `smart-contracts-core`  with version > `1.1.1`
+- change name and output of `getContractsPath` (--> `getContractPaths`) in `index.js`, usage requires `smart-contracts-core`  with version > `1.1.1`
 - add script for installing additional dependencies like
   + oraclize API
   + string-utilities
