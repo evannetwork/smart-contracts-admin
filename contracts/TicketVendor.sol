@@ -14,24 +14,23 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
 
     // TODO: make ticket info private
     uint256 public ticketCount;
+    mapping(uint256 => uint256) public ticketIssued;
     mapping(uint256 => address) public ticketOwner;
     mapping(uint256 => uint256) public ticketPrice;
-    mapping(uint256 => uint256) public ticketValidUntil;
     mapping(uint256 => uint256) public ticketValue;
-    uint256 private currentPrice;
-    uint256 private defaultUptime = 15 minutes;
-    uint256 private priceEveWeiPerEther;
-    uint256 private priceLastUpdated;
+    uint256 private priceEveWeiPerEther = 0;
+    uint256 private priceLastUpdated = 0;
     uint256 private minValue = 1 ether;
 
     /// @notice callback for oraclize queries
     /// @dev https://docs.oraclize.it
     /// @param result query result, new price
     function __callback(bytes32, string result) public {
-        if (msg.sender != oraclize_cbAddress()) revert();
-        // parsing is gonna be fund...
-        // --> type missmatch, etc, I know, this's for demo only
+        assert(msg.sender == oraclize_cbAddress());
         priceEveWeiPerEther = convertToWei(result);
+        priceLastUpdated = now;
+
+        PriceUpdated(priceEveWeiPerEther, priceLastUpdated);
     }
 
     /// @notice invalidates ticket (delete or invalidate? (tbd))
@@ -39,9 +38,9 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// emits TicketConsumed
     /// @param ticketId id of the ticket to consume
     function consumeTicket(uint256 ticketId) public auth {
+        delete ticketIssued[ticketId];
         delete ticketOwner[ticketId];
         delete ticketPrice[ticketId];
-        delete ticketValidUntil[ticketId];
         delete ticketValue[ticketId];
     }
 
@@ -52,21 +51,15 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     function requestTicket(uint256 value) public {
         assert(value >= getTicketMinValue());
         uint256 ticketId = ticketCount++;
-        var (price, ) = getCurrentPrice();
+        var (price, , okay) = getCurrentPrice();
+        assert(okay);
 
+        ticketIssued[ticketId] = now;
         ticketOwner[ticketId] = msg.sender;
         ticketPrice[ticketId] = price;
-        ticketValidUntil[ticketId] = now + getDefaultTicketUptime();
         ticketValue[ticketId] = value;
 
         TicketCreated(msg.sender, ticketId);
-    }
-
-    /// @notice set default uptime
-    /// @dev callable by owner
-    /// @param newDefaultUptime new value for updtime (as seconds since unix epoch)
-    function setDefaultTicketUptime(uint256 newDefaultUptime) public auth {
-        defaultUptime = newDefaultUptime;
     }
 
     // update minimum transfer value (home network, payed in Wei)
@@ -82,37 +75,34 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     function updatePrice() public payable auth {
         if (oraclize_getPrice("URL") > this.balance) {
         } else {
-            oraclize_query("URL", "json(https://api.gdax.com/products/ETH-USD/ticker).price");
+            oraclize_query("URL", "json(https://api.gdax.com/products/ETH-EUR/TICKER).PRICE");
         }
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)
     /// @return evePerEther current transfer rate (EVE (even.network) per ETHER (Ethereum public chain))
     /// @return lastUpdated timestamp of last price update
-    function getCurrentPrice() public view returns(uint256 evePerEther, uint256 lastUpdated) {
-        assert(priceEveWeiPerEther != 0 && priceLastUpdated != 0);
+    function getCurrentPrice() public view returns(
+        uint256 evePerEther, uint256 lastUpdated, bool okay) {
+        if (priceEveWeiPerEther != 0 && priceLastUpdated != 0) {
+            okay = true;
+        }
         // TODO: (tbd) reject if update older than x?
-        return (priceEveWeiPerEther, priceLastUpdated);
+        return (priceEveWeiPerEther, priceLastUpdated, okay);
     }
 
     /// @notice get ticket info
     /// @param ticketId id of the ticket to look up
     /// @return owner ticket owner
     /// @return price price, that has been locked for ticket
-    /// @return validUntil expiration date for ticket
+    /// @return issued expiration date for ticket
     /// @return value transfer value
     function getTicketInfo(uint256 ticketId) public view returns(
-            address owner, uint256 price, uint256 validUntil, uint256 value) {
+            address owner, uint256 price, uint256 issued, uint256 value) {
+        issued = ticketIssued[ticketId];
         owner = ticketOwner[ticketId];
         price = ticketPrice[ticketId];
-        validUntil = ticketValidUntil[ticketId];
         value = ticketValue[ticketId];
-    }
-
-    /// @notice gets default updtime for tickets
-    /// @return defaultUptime default updtime for new tickets
-    function getDefaultTicketUptime() public view returns(uint256 defaultUptime) {
-        return defaultUptime;
     }
 
     /// @notice get minimum value for issuing tickets

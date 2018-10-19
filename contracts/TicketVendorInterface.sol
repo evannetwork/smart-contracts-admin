@@ -4,6 +4,7 @@ import "./Core.sol";
 
 
 interface TicketVendorInterface {
+    event PriceUpdated(uint256 newPrice, uint256 updatedAt);
     event TicketConsumed(uint256 indexed ticketId);
     event TicketCreated(address indexed requester, uint256 indexed ticketId);
 
@@ -17,10 +18,6 @@ interface TicketVendorInterface {
     /// emits TicketCreated
     /// @param value value to request, must be lte getTicketMinValue()
     function requestTicket(uint256 value) public;
-    /// @notice set default uptime
-    /// @dev callable by owner
-    /// @param newDefaultUptime new value for updtime (as seconds since unix epoch)
-    function setDefaultTicketUptime(uint256 newDefaultUptime) public;
     // update minimum transfer value (home network, payed in Wei)
     /// @notice creates new ticket
     /// @dev callable by owner
@@ -33,18 +30,15 @@ interface TicketVendorInterface {
     /// @notice get get current price and last update (as seconds since unix epoch)
     /// @return weiPerEve current transfer rate (as Wei (home network) per EVE (even.network))
     /// @return lastUpdated timestamp of last price update
-    function getCurrentPrice() public view returns(uint256 weiPerEve, uint256 lastUpdated);
+    function getCurrentPrice() public view returns(uint256 weiPerEve, uint256 lastUpdated, bool okay);
     /// @notice get ticket info
     /// @param ticketId id of the ticket to look up
     /// @return owner ticket owner
     /// @return price price, that has been locked for ticket
     /// @return validUntil expiration date for ticket
     /// @return value transfer value
-    function getCurrentTicketInfo(uint256 ticketId) public view returns(
-        address owner, uint256 price, uint256 validUntil, uint256 value);
-    /// @notice gets default updtime for tickets
-    /// @return defaultUptime default updtime for new tickets
-    function getDefaultTicketUptime() public view returns(uint256);
+    function getTicketInfo(uint256 ticketId) public view returns(
+        address owner, uint256 price, uint256 issued, uint256 value);
     /// @notice get minimum value for issuing tickets
     /// @return minValue minimum transfer value
     function getTicketMinValue() public view returns(uint256);
