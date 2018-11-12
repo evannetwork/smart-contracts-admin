@@ -20,7 +20,7 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     mapping(uint256 => uint256) public ticketValue;
     uint256 private priceEveWeiPerEther = 0;
     uint256 private priceLastUpdated = 0;
-    uint256 private minValue = 1 ether;
+    uint256 private priceMaxAge = 1 hour;
 
     /// @notice callback for oraclize queries
     /// @dev https://docs.oraclize.it
@@ -33,25 +33,14 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         PriceUpdated(priceEveWeiPerEther, priceLastUpdated);
     }
 
-    /// @notice invalidates ticket (delete or invalidate? (tbd))
-    /// @dev callable by home bridge (tbd),
-    /// emits TicketConsumed
-    /// @param ticketId id of the ticket to consume
-    function consumeTicket(uint256 ticketId) public auth {
-        delete ticketIssued[ticketId];
-        delete ticketOwner[ticketId];
-        delete ticketPrice[ticketId];
-        delete ticketValue[ticketId];
-    }
-
     /// @notice creates new ticket
     /// @dev callable by anyone
     /// emits TicketCreated
     /// @param value value to request, must be lte getTicketMinValue()
     function requestTicket(uint256 value) public {
-        assert(value >= getTicketMinValue());
         uint256 ticketId = ticketCount++;
-        var (price, , okay) = getCurrentPrice();
+        var (price, lastUpdated, okay) = getCurrentPrice();
+        assert(lastUpdated >= now - getPriceMaxAge());
         assert(okay);
 
         ticketIssued[ticketId] = now;
@@ -62,12 +51,12 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         TicketCreated(msg.sender, ticketId);
     }
 
-    // update minimum transfer value (home network, payed in Wei)
-    /// @notice creates new ticket
+    // update maximum age of price
+    /// @notice tickets cannot be issued if this age is exceeded
     /// @dev callable by owner
-    /// @param newMinValue new minimum transfer value
-    function setMinValue(uint256 newMinValue) public auth {
-        minValue = newMinValue;
+    /// @param newPriceMaxAge new max age for price
+    function setPriceMaxAge(uint256 newPriceMaxAge) public auth {
+        priceMaxAge = newPriceMaxAge;
     }
 
     /// @notice call oracle for pricing update
@@ -80,14 +69,13 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)
-    /// @return evePerEther current transfer rate (EVE (even.network) per ETHER (Ethereum public chain))
+    /// @return eveWeiPerEther current transfer rate (EVE (even.network) per ETHER (Ethereum public chain))
     /// @return lastUpdated timestamp of last price update
     function getCurrentPrice() public view returns(
-        uint256 evePerEther, uint256 lastUpdated, bool okay) {
+        uint256 eveWeiPerEther, uint256 lastUpdated, bool okay) {
         if (priceEveWeiPerEther != 0 && priceLastUpdated != 0) {
             okay = true;
         }
-        // TODO: (tbd) reject if update older than x?
         return (priceEveWeiPerEther, priceLastUpdated, okay);
     }
 
@@ -105,10 +93,10 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         value = ticketValue[ticketId];
     }
 
-    /// @notice get minimum value for issuing tickets
-    /// @return minValue minimum transfer value
-    function getTicketMinValue() public view returns(uint256 minValue) {
-        return minValue;
+    /// @notice get max age that the price can have when issuing a ticket
+    /// @return priceMaxAge max age for price
+    function getPriceMaxAge() public view returns(uint256 priceMaxAge) {
+        return priceMaxAge;
     }
 
     /// @notice convert string value in ETHER/EVE with decimals to Wei uint
