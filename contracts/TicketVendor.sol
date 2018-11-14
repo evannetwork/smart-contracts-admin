@@ -91,7 +91,7 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
 
     /// @notice get max age that the price can have when issuing a ticket
     /// @return priceMaxAge max age for price
-    function getPriceMaxAge() public view returns(uint256 priceMaxAge) {
+    function getPriceMaxAge() public view returns(uint256) {
         return priceMaxAge;
     }
 

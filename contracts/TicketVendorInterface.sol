@@ -31,8 +31,8 @@ interface TicketVendorInterface {
         uint256 eveWeiPerEther, uint256 lastUpdated, bool okay);
 
     /// @notice get max age that the price can have when issuing a ticket
-    /// @return priceMaxAge max age for price
-    function getPriceMaxAge() public view returns(uint256 priceMaxAge);
+    /// @return max age for price
+    function getPriceMaxAge() public view returns(uint256);
 
     /// @notice get query used when updating prices
     /// @return oraclize URL query string
