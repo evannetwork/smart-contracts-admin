@@ -47,8 +47,9 @@ const providers = {
   evanTestcore: () => new Web3.providers.WebsocketProvider('wss://testcore.evan.network/ws'),
   kovan: () => new Web3.providers.HttpProvider('http://localhost:8555'),
 };
-// const currentProvider = 'evanTestcore';
-let currentProvider;
+
+let  currentProvider;
+// currentProvider = 'evanTestcore';
 currentProvider = 'kovan';
 
 
@@ -85,8 +86,9 @@ describe('TicketVendor contract', function() {
 
   it('can be created', async () => {
     ticketVendor = await runtimes[accounts[0]].executor.createContract(
-      'TicketVendor', [], { from: accounts[0], gas: 2000000 });
+      'TicketVendor', [], { from: accounts[0], gas: 3000000 });
     console.log(ticketVendor.options.address);
+    process.exit();
   });
 
   it('does not allow to issue new tickets, when price hasn\'t been updated', async () => {
@@ -96,16 +98,16 @@ describe('TicketVendor contract', function() {
   });
 
   it('allows to insert prices for debugging (this should not work, when rolling out to mainnet)', async () => {
-    let { evePerEther } = await runtimes[accounts[0]].executor.executeContractCall(
+    let { eveWeiPerEther } = await runtimes[accounts[0]].executor.executeContractCall(
       ticketVendor, 'getCurrentPrice');
-    expect(evePerEther).to.eq('0');
+    expect(eveWeiPerEther).to.eq('0');
     const updatePromise = runtimes[accounts[0]].executor.executeContractTransaction(
       ticketVendor, '__callback', { from: accounts[0] }, bytes32Zero, '123.456789000');
     if (currentProvider === 'evanTestcore') {
       await updatePromise;
-      evePerEther = (await runtimes[accounts[0]].executor.executeContractCall(
-        ticketVendor, 'getCurrentPrice')).evePerEther;
-      expect(evePerEther).to.eq('123456789000000000000');
+      eveWeiPerEther = (await runtimes[accounts[0]].executor.executeContractCall(
+        ticketVendor, 'getCurrentPrice')).eveWeiPerEther;
+      expect(eveWeiPerEther).to.eq('123456789000000000000');
     } else if (currentProvider === 'kovan') {
       await expect(updatePromise).to.be.rejected;
     } else {
@@ -115,9 +117,9 @@ describe('TicketVendor contract', function() {
   });
 
   it('allows to update prices via oraclize (only works on kovan (for now))', async () => {
-    let { evePerEther } = await runtimes[accounts[0]].executor.executeContractCall(
+    let { eveWeiPerEther } = await runtimes[accounts[0]].executor.executeContractCall(
       ticketVendor, 'getCurrentPrice');
-    expect(evePerEther).to.eq('0');
+    expect(eveWeiPerEther).to.eq('0');
     const newPrice = await runtimes[accounts[0]].executor.executeContractTransaction(
       ticketVendor,
       'updatePrice',

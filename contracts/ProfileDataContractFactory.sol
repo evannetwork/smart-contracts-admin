@@ -25,7 +25,7 @@
   https://evan.network/license/
 */
 
-pragma solidity 0.4.20;
+pragma solidity ~0.4.24;
 
 import "./BaseContractFactory.sol";
 import "./DSRolesPerContract.sol";

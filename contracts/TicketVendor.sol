@@ -12,15 +12,15 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     // GPL-3.0 (but check file headers again)
     using strings for *;
 
-    // TODO: make ticket info private
-    uint256 public ticketCount;
-    mapping(uint256 => uint256) public ticketIssued;
-    mapping(uint256 => address) public ticketOwner;
-    mapping(uint256 => uint256) public ticketPrice;
-    mapping(uint256 => uint256) public ticketValue;
+    uint256 private ticketCount;
+    mapping(uint256 => uint256) private ticketIssued;
+    mapping(uint256 => address) private ticketOwner;
+    mapping(uint256 => uint256) private ticketPrice;
+    mapping(uint256 => uint256) private ticketValue;
     uint256 private priceEveWeiPerEther = 0;
     uint256 private priceLastUpdated = 0;
-    uint256 private priceMaxAge = 1 hour;
+    uint256 private priceMaxAge = 1 hours;
+    string private query = "json(https://api.gdax.com/products/ETH-EUR/TICKER).price";
 
     /// @notice callback for oraclize queries
     /// @dev https://docs.oraclize.it
@@ -29,8 +29,6 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         assert(msg.sender == oraclize_cbAddress());
         priceEveWeiPerEther = convertToWei(result);
         priceLastUpdated = now;
-
-        PriceUpdated(priceEveWeiPerEther, priceLastUpdated);
     }
 
     /// @notice creates new ticket
@@ -39,8 +37,7 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// @param value value to request, must be lte getTicketMinValue()
     function requestTicket(uint256 value) public {
         uint256 ticketId = ticketCount++;
-        var (price, lastUpdated, okay) = getCurrentPrice();
-        assert(lastUpdated >= now - getPriceMaxAge());
+        var (price, , okay) = getCurrentPrice();
         assert(okay);
 
         ticketIssued[ticketId] = now;
@@ -59,24 +56,49 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         priceMaxAge = newPriceMaxAge;
     }
 
+    /// @notice set query used when updating prices
+    /// @param newQuery updated query
+    function setQuery(string newQuery) public auth {
+        query = newQuery;
+    }
+
     /// @notice call oracle for pricing update
     /// @dev callable by owner / manager (tbd)
     function updatePrice() public payable auth {
         if (oraclize_getPrice("URL") > this.balance) {
         } else {
-            oraclize_query("URL", "json(https://api.gdax.com/products/ETH-EUR/TICKER).PRICE");
+            oraclize_query("URL", query);
         }
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)
     /// @return eveWeiPerEther current transfer rate (EVE (even.network) per ETHER (Ethereum public chain))
-    /// @return lastUpdated timestamp of last price update
+    /// @return price, lastUpdated and info if price is valid
     function getCurrentPrice() public view returns(
         uint256 eveWeiPerEther, uint256 lastUpdated, bool okay) {
-        if (priceEveWeiPerEther != 0 && priceLastUpdated != 0) {
+        if ((priceEveWeiPerEther != 0 && priceLastUpdated != 0) &&
+            (priceLastUpdated >= now - getPriceMaxAge())) {
             okay = true;
         }
         return (priceEveWeiPerEther, priceLastUpdated, okay);
+    }
+
+    /// @notice get current number of tickets
+    /// @return current number of tickets
+    function getTicketCount() public view returns (uint256) {
+        return ticketCount;
+    }
+
+    /// @notice get max age that the price can have when issuing a ticket
+    /// @return priceMaxAge max age for price
+    function getPriceMaxAge() public view returns(uint256 priceMaxAge) {
+        return priceMaxAge;
+    }
+
+    /// @notice get query used when updating prices
+    /// @return oraclize URL query string
+    function getQuery() public view returns(string) {
+        return query;
     }
 
     /// @notice get ticket info
@@ -93,10 +115,10 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         value = ticketValue[ticketId];
     }
 
-    /// @notice get max age that the price can have when issuing a ticket
-    /// @return priceMaxAge max age for price
-    function getPriceMaxAge() public view returns(uint256 priceMaxAge) {
-        return priceMaxAge;
+    /// @notice check costs for updating price at oraclize
+    /// @return cost for a price update
+    function getUpdatePriceCost() public view returns (uint256 cost) {
+        return oraclize_getPrice("URL");
     }
 
     /// @notice convert string value in ETHER/EVE with decimals to Wei uint
