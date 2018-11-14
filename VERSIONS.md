@@ -12,6 +12,7 @@
     * remove `consumeTicket`
     * remove `setMinValue`, `getMinValue`
   + use `eveWeiPerEther` for price related info (read as "EVE Wei" per "(mainnet) Ether")
+  + update `updatePrice` to fail is missing funds for query callback
 
 ### Fixes
 ### Deprecations

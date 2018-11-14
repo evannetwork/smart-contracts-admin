@@ -65,10 +65,8 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// @notice call oracle for pricing update
     /// @dev callable by owner / manager (tbd)
     function updatePrice() public payable auth {
-        if (oraclize_getPrice("URL") > this.balance) {
-        } else {
-            oraclize_query("URL", query);
-        }
+        assert(oraclize_getPrice("URL") > this.balance);
+        oraclize_query("URL", query);
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)
