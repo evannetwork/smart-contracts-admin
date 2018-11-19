@@ -45,7 +45,7 @@ import { accounts, accountMap } from './test/accounts';
 
 const providers = {
   evanTestcore: () => new Web3.providers.WebsocketProvider('wss://testcore.evan.network/ws'),
-  kovan: () => new Web3.providers.HttpProvider('http://localhost:8555'),
+  kovan: () => new Web3.providers.HttpProvider('http://localhost:8545'),
 };
 
 let  currentProvider;
