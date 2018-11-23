@@ -5,10 +5,25 @@
 ### Fixes
 ### Deprecations
 
+## Version 1.2.0
+### Features
+- add `TicketVendor`, that allows to create EVE exchange tickets for bridge
+- change name and output of `getContractsPath` (--> `getContractPaths`) in `index.js`, usage requires `smart-contracts-core`  with version > `1.1.1`
+- add script for installing additional dependencies like
+  + oraclize API
+  + string-utilities
+- update `TicketVendor`
+  + remove responsibilities for ticket validity
+    * remove `consumeTicket`
+    * remove `setMinValue`, `getMinValue`
+  + use `eveWeiPerEther` for price related info (read as "EVE Wei" per "(mainnet) Ether")
+  + update `updatePrice` to fail is missing funds for query callback
+
 ## Version 1.1.0
 ### Features
 - add `MailBoxInterface` as parent contract for `MailBox`
 - add `ClaimsENS.sol` and `ClaimsPublicResolver.sol` for managing claims on-chain
+- use `keccak256` instead of `sha3` for hashing
 
 ## Version 1.0.2
 ### Features

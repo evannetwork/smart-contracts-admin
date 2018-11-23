@@ -25,7 +25,7 @@
   https://evan.network/license/
 */
 
-pragma solidity 0.4.20;
+pragma solidity ~0.4.24;
 
 import "./Core.sol";
 import "./EnsReader.sol";
