@@ -2,6 +2,11 @@
 
 ## Next Version
 ### Features
+### Fixes
+### Deprecations
+
+## Version 1.2.0
+### Features
 - add `TicketVendor`, that allows to create EVE exchange tickets for bridge
 - change name and output of `getContractsPath` (--> `getContractPaths`) in `index.js`, usage requires `smart-contracts-core`  with version > `1.1.1`
 - add script for installing additional dependencies like
@@ -13,10 +18,6 @@
     * remove `setMinValue`, `getMinValue`
   + use `eveWeiPerEther` for price related info (read as "EVE Wei" per "(mainnet) Ether")
   + update `updatePrice` to fail is missing funds for query callback
-
-### Fixes
-### Deprecations
-
 
 ## Version 1.1.0
 ### Features
