@@ -3,7 +3,7 @@
   "author": "evan.network GmbH",
   "description": "evan.network admin smart contracts",
   "devDependencies": {
-    "@evan.network/api-blockchain-core": "^1.4.0",
+    "@evan.network/api-blockchain-core": "^1.5.0",
     "@types/chai": "4.0.6",
     "@types/chai-as-promised": "7.1.0",
     "@types/mocha": "2.2.44",
