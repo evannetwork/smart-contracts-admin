@@ -36,7 +36,7 @@ import "./DataContractInterface.sol";
 /** @title MailBox Contract - stores messages and replies */
 contract MailBox is MailBoxInterface {
 
-    //web3.utils.soliditySha3('addressbooks') 0xab2cd606d9bab2fcf61e4cdadd695a76752cda02740e85d1ae4046c311f1c192; 
+    //web3.utils.soliditySha3('addressbooks') 0xab2cd606d9bab2fcf61e4cdadd695a76752cda02740e85d1ae4046c311f1c192;
     bytes32 constant MAILS_LABEL = 0x6131329eed5a23aee1d464e8f88d6490e3ef07a83f8709a0f18adf40db7fc64c; //web3.utils.soliditySha3('mails')
     bytes32 constant EVENTHUB_LABEL = 0xea14ea6d138254c1a2931c6a19f6888c7b52f512d165cfa428183a53dd9dfb8c; //web3.utils.soliditySha3('eventhub')
     bytes32 constant MAIL2ANSWER_LABEL = 0x6a6b1ee2270de8bc4d3aa3db514533fdedccfeb8a850de7ecb25c99caf12c766; //web3.utils.soliditySha3('mail2Answer')
@@ -75,7 +75,7 @@ contract MailBox is MailBoxInterface {
         return db.containerGet(keccak256(USER2MAILSENT_LABEL, keccak256(bytes32(msg.sender))));
     }
 
-    /**@dev returns a specific mail 
+    /**@dev returns a specific mail
      *
      * @param mailId id of the target mail
      * @return hash of the mail content and the mail sender
@@ -133,7 +133,7 @@ contract MailBox is MailBoxInterface {
         uint256 mailId = mailCount++;
 
         // store mail
-        db.containerSet(keccak256(MAILS_LABEL, mailId), mailHash);   
+        db.containerSet(keccak256(MAILS_LABEL, mailId), mailHash);
 
         // keep mail for msg.senders 'outbox'
         db.listEntryAdd(keccak256(USER2MAILSENT_LABEL, keccak256(bytes32(msg.sender))), bytes32(mailId));
@@ -187,7 +187,7 @@ contract MailBox is MailBoxInterface {
 
     /**@dev returns the global db for migration purposes
      * @return global db
-     */    
+     */
     function getStorage() constant returns (DataStoreIndex) {
         return db;
     }
