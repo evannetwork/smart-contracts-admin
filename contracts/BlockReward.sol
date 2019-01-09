@@ -18,6 +18,10 @@ contract BlockRewardContract is DSAuth {
     event AddedReceiver(uint256 amount, address indexed receiver);
     event Rewarded(address[] receivers, uint256[] rewards);
     
+    constructor(address newOwner) public DSAuth() {
+        setOwner(newOwner);
+    }
+
     modifier onlySystem {
         require(msg.sender == 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE);
         _;
