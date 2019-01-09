@@ -46,6 +46,8 @@ contract MailBox is MailBoxInterface {
     bytes32 constant MAIL2ACCOUNT2BALANCE_LABEL = 0xf25aad3290e12dc6011a6c9ae45640eec0930ed21058f0595474cad21e91b7d7; //web3.utils.soliditySha3('mail2Account2Balance')
     bytes32 constant PROFILE_INDEX_LABEL = 0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d; //web3.utils.soliditySha3('profile')
     bytes32 constant CONTACTS_LABEL = 0x8417ef2e3e7bb6630d90a4cdcc188db4bcc27d6b2d8891b376ef771499bb4299; //web3.utils.soliditySha3('contacts')
+    bytes32 constant PROFILE_OPTIONS_LABEL = 0x9c4790d827cdbec9aa4fcb49d4c8836fdcc100c104ed393e0830eaf055662e4e; //web3.utils.soliditySha3('profileOptions')
+    bytes32 constant FILTER_CONTACTS_LABEL = 0x8a98e050d9f1326a021e06909d4c9228f55d1b00b6fe39b2f45968b8547ec2dc; //web3.utils.soliditySha3('filterContacts')
     uint256 mailCount = 0;
 
 
@@ -151,7 +153,11 @@ contract MailBox is MailBoxInterface {
         for (uint i = 0; i < recipients.length; ++i) {
             // get recipients known accounts, check if sender has its known flag set in there (last bit is true)
             DataContractInterface profile = DataContractInterface(pIndex.getProfile(recipients[i]));
-            assert((profile.getMappingValue(CONTACTS_LABEL, keccak256(msg.sender)) & 1) == 1);
+            assert(
+                // either filter is turned off
+                ((profile.getMappingValue(PROFILE_OPTIONS_LABEL, FILTER_CONTACTS_LABEL) & 1) == 0) ||
+                // or contact is known
+                ((profile.getMappingValue(CONTACTS_LABEL, keccak256(msg.sender)) & 1) == 1));
             if (msg.value != 0) {
                 bytes32 key = keccak256(MAIL2ACCOUNT2BALANCE_LABEL, bytes32(mailId), bytes32(recipients[i]));
                 uint256 balance = (uint256)(db.containerGet(key));

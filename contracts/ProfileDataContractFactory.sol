@@ -82,6 +82,10 @@ contract ProfileDataContractFactory is BaseContractFactory {
             keccak256("contacts")), dc.SET_LABEL()), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
+            dc.MAPPINGENTRY_LABEL(),
+            keccak256("profileOptions")), dc.SET_LABEL()), true);
+        roles.setRoleOperationCapability(
+            ownerRole, 0, keccak256(keccak256(
             dc.ENTRY_LABEL(),
             keccak256("publicKey")), dc.SET_LABEL()), true);
         
