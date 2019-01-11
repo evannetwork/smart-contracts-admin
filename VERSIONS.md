@@ -2,6 +2,8 @@
 
 ## Next Version
 ### Features
+- add BlockReward and Validator contracts for Mainnet
+- set profile contact knows state active for mailbox
 ### Fixes
 ### Deprecations
 
