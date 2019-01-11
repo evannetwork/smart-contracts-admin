@@ -5,6 +5,11 @@
 ### Fixes
 ### Deprecations
 
+## Version 1.3.0
+### Features
+- add BlockReward and Validator contracts for Mainnet
+- set profile contact knows state active for mailbox
+
 ## Version 1.2.0
 ### Features
 - add `TicketVendor`, that allows to create EVE exchange tickets for bridge

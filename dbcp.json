@@ -6,17 +6,22 @@
       "files": [
         "compiled.js"
       ],
-      "type": "library",
-      "origin": "QmeLc8tagfqU1mvcxKnzxKakf9bPzkMGFMRZ7tpUoyc8Pe"
+      "origin": "QmeLc8tagfqU1mvcxKnzxKakf9bPzkMGFMRZ7tpUoyc8Pe",
+      "type": "library"
     },
+    "dbcpVersion": 2,
     "description": "evan.network admin compiled smart contracts.",
+    "license": {
+      "file": "https://ipfs.evan.network/ipns/QmT1FwnYyURjLj7nKMwEuTPUBc5uJ6z1zAVsYnKfUL1X1q/AGPL-3.0-only.txt",
+      "type": "AGPL-3.0-only"
+    },
     "name": "smartcontractsadmin",
     "tags": [
-      "dapp",
       "contractus",
+      "dapp",
       "library"
     ],
-    "version": "1.2.0",
+    "version": "1.3.0",
     "versions": {}
   }
 }

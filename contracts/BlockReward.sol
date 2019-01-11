@@ -13,11 +13,15 @@ contract BlockRewardContract is DSAuth {
     bytes32 internal constant MINTED_IN_BLOCK = "mintedInBlock";
 
     mapping(bytes32 => address[]) internal addressArrayStorage;
-	mapping(bytes32 => uint256) internal uintStorage;
+    mapping(bytes32 => uint256) internal uintStorage;
 
     event AddedReceiver(uint256 amount, address indexed receiver);
     event Rewarded(address[] receivers, uint256[] rewards);
     
+    constructor(address newOwner) public DSAuth() {
+        setOwner(newOwner);
+    }
+
     modifier onlySystem {
         require(msg.sender == 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE);
         _;
@@ -32,7 +36,7 @@ contract BlockRewardContract is DSAuth {
         if (oldAmount == 0) {
             _addExtraReceiver(_receiver);
         }
-        _setExtraReceiverAmount(oldAmount.add(_amount), _receiver);
+        _setExtraReceiverAmount(oldAmount + _amount, _receiver);
         emit AddedReceiver(_amount, _receiver);
     }
 
@@ -137,12 +141,12 @@ contract BlockRewardContract is DSAuth {
         uintStorage[hash] = _amount;
 
         hash = keccak256(abi.encode(MINTED_FOR_ACCOUNT, _account));
-        uintStorage[hash] = uintStorage[hash].add(_amount);
+        uintStorage[hash] = uintStorage[hash] + _amount;
 
         hash = keccak256(abi.encode(MINTED_IN_BLOCK, block.number));
-        uintStorage[hash] = uintStorage[hash].add(_amount);
+        uintStorage[hash] = uintStorage[hash] + _amount;
 
         hash = MINTED_TOTALLY;
-        uintStorage[hash] = uintStorage[hash].add(_amount);
+        uintStorage[hash] = uintStorage[hash] + _amount;
     }
 }

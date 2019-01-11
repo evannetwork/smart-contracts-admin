@@ -29,14 +29,14 @@ pragma solidity ^0.4.0;
 
 import "./MailBoxInterface.sol";
 import "./EventHubMailBox.sol";
-// import "./ProfileIndex.sol";
-// import "./DataContractInterface.sol";
+import "./ProfileIndex.sol";
+import "./DataContractInterface.sol";
 
 
 /** @title MailBox Contract - stores messages and replies */
 contract MailBox is MailBoxInterface {
 
-    //web3.utils.soliditySha3('addressbooks') 0xab2cd606d9bab2fcf61e4cdadd695a76752cda02740e85d1ae4046c311f1c192; 
+    //web3.utils.soliditySha3('addressbooks') 0xab2cd606d9bab2fcf61e4cdadd695a76752cda02740e85d1ae4046c311f1c192;
     bytes32 constant MAILS_LABEL = 0x6131329eed5a23aee1d464e8f88d6490e3ef07a83f8709a0f18adf40db7fc64c; //web3.utils.soliditySha3('mails')
     bytes32 constant EVENTHUB_LABEL = 0xea14ea6d138254c1a2931c6a19f6888c7b52f512d165cfa428183a53dd9dfb8c; //web3.utils.soliditySha3('eventhub')
     bytes32 constant MAIL2ANSWER_LABEL = 0x6a6b1ee2270de8bc4d3aa3db514533fdedccfeb8a850de7ecb25c99caf12c766; //web3.utils.soliditySha3('mail2Answer')
@@ -44,8 +44,10 @@ contract MailBox is MailBoxInterface {
     bytes32 constant USER2MAILSENT_LABEL = 0xdc52fa714e35ab8c7a0294d979ea831031c8168677cf3e99ef737c1846271ec7; //web3.utils.soliditySha3('user2MailSent')
     bytes32 constant MAILSENT2USER_LABEL = 0x5696130b5d482639e87bb0271bbd5611cc154617cfadf9b55c646d1e5af2e854; //web3.utils.soliditySha3('mailSent2User')
     bytes32 constant MAIL2ACCOUNT2BALANCE_LABEL = 0xf25aad3290e12dc6011a6c9ae45640eec0930ed21058f0595474cad21e91b7d7; //web3.utils.soliditySha3('mail2Account2Balance')
-    // bytes32 constant PROFILE_INDEX_LABEL = 0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d; //web3.utils.soliditySha3('profile')
-    // bytes32 constant CONTACTS_LABEL = 0x8417ef2e3e7bb6630d90a4cdcc188db4bcc27d6b2d8891b376ef771499bb4299; //web3.utils.soliditySha3('contacts')
+    bytes32 constant PROFILE_INDEX_LABEL = 0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d; //web3.utils.soliditySha3('profile')
+    bytes32 constant CONTACTS_LABEL = 0x8417ef2e3e7bb6630d90a4cdcc188db4bcc27d6b2d8891b376ef771499bb4299; //web3.utils.soliditySha3('contacts')
+    bytes32 constant PROFILE_OPTIONS_LABEL = 0x9c4790d827cdbec9aa4fcb49d4c8836fdcc100c104ed393e0830eaf055662e4e; //web3.utils.soliditySha3('profileOptions')
+    bytes32 constant FILTER_CONTACTS_LABEL = 0x8a98e050d9f1326a021e06909d4c9228f55d1b00b6fe39b2f45968b8547ec2dc; //web3.utils.soliditySha3('filterContacts')
     uint256 mailCount = 0;
 
 
@@ -75,7 +77,7 @@ contract MailBox is MailBoxInterface {
         return db.containerGet(keccak256(USER2MAILSENT_LABEL, keccak256(bytes32(msg.sender))));
     }
 
-    /**@dev returns a specific mail 
+    /**@dev returns a specific mail
      *
      * @param mailId id of the target mail
      * @return hash of the mail content and the mail sender
@@ -133,7 +135,7 @@ contract MailBox is MailBoxInterface {
         uint256 mailId = mailCount++;
 
         // store mail
-        db.containerSet(keccak256(MAILS_LABEL, mailId), mailHash);   
+        db.containerSet(keccak256(MAILS_LABEL, mailId), mailHash);
 
         // keep mail for msg.senders 'outbox'
         db.listEntryAdd(keccak256(USER2MAILSENT_LABEL, keccak256(bytes32(msg.sender))), bytes32(mailId));
@@ -146,12 +148,16 @@ contract MailBox is MailBoxInterface {
             db.listEntryAdd(keccak256(MAIL2ANSWER_LABEL, mailAnswerId), bytes32(mailId));
         }
 
-        // ProfileIndex pIndex = ProfileIndex(getAddr(PROFILE_INDEX_LABEL));
+        ProfileIndex pIndex = ProfileIndex(getAddr(PROFILE_INDEX_LABEL));
         EventHubMailBox mailBoxEventHub = EventHubMailBox(getAddr(EVENTHUB_LABEL));
         for (uint i = 0; i < recipients.length; ++i) {
             // get recipients known accounts, check if sender has its known flag set in there (last bit is true)
-            // DataContractInterface profile = DataContractInterface(pIndex.getProfile(recipients[i]));
-            // assert((profile.getMappingValue(CONTACTS_LABEL, keccak256(msg.sender)) & 1) == 1);
+            DataContractInterface profile = DataContractInterface(pIndex.getProfile(recipients[i]));
+            assert(
+                // either filter is turned off
+                ((profile.getMappingValue(PROFILE_OPTIONS_LABEL, FILTER_CONTACTS_LABEL) & 1) == 0) ||
+                // or contact is known
+                ((profile.getMappingValue(CONTACTS_LABEL, keccak256(msg.sender)) & 1) == 1));
             if (msg.value != 0) {
                 bytes32 key = keccak256(MAIL2ACCOUNT2BALANCE_LABEL, bytes32(mailId), bytes32(recipients[i]));
                 uint256 balance = (uint256)(db.containerGet(key));
@@ -187,7 +193,7 @@ contract MailBox is MailBoxInterface {
 
     /**@dev returns the global db for migration purposes
      * @return global db
-     */    
+     */
     function getStorage() constant returns (DataStoreIndex) {
         return db;
     }
