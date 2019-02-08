@@ -63,31 +63,34 @@ contract ProfileDataContractFactory is BaseContractFactory {
         roles.setRoleCapability(ownerRole, 0, bytes4(keccak256("addListEntries(bytes32[],bytes32[])")), true);
 
         // owner operation permission
+        bytes32 setLabel = 0xd2f67e6aeaad1ab7487a680eb9d3363a597afa7a3de33fa9bf3ae6edcb88435d;
+        bytes32 entryLabel = 0x84f3db82fb6cd291ed32c6f64f7f5eda656bda516d17c6bc146631a1f05a1833;
+        bytes32 mappingentryLabel = 0xd9234c2c276ff426c50a259dd40abb4cdd9767973f4a72f6e032e829f681e0b4;
         // entries
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.ENTRY_LABEL(),
-            keccak256("addressBook")), dc.SET_LABEL()), true);
+            entryLabel,
+            keccak256("addressBook")), setLabel), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.ENTRY_LABEL(),
-            keccak256("bookmarkedDapps")), dc.SET_LABEL()), true);
+            entryLabel,
+            keccak256("bookmarkedDapps")), setLabel), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.ENTRY_LABEL(),
-            keccak256("contracts")), dc.SET_LABEL()), true);
+            entryLabel,
+            keccak256("contracts")), setLabel), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.MAPPINGENTRY_LABEL(),
-            keccak256("contacts")), dc.SET_LABEL()), true);
+            mappingentryLabel,
+            keccak256("contacts")), setLabel), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.MAPPINGENTRY_LABEL(),
-            keccak256("profileOptions")), dc.SET_LABEL()), true);
+            mappingentryLabel,
+            keccak256("profileOptions")), setLabel), true);
         roles.setRoleOperationCapability(
             ownerRole, 0, keccak256(keccak256(
-            dc.ENTRY_LABEL(),
-            keccak256("publicKey")), dc.SET_LABEL()), true);
+            entryLabel,
+            keccak256("publicKey")), setLabel), true);
         
         return roles;
     }
