@@ -3,7 +3,7 @@
   "author": "evan.network GmbH",
   "description": "evan.network admin smart contracts",
   "devDependencies": {
-    "@evan.network/api-blockchain-core": "^1.7.0",
+    "@evan.network/api-blockchain-core": "^2.0.0",
     "@types/chai": "4.0.6",
     "@types/chai-as-promised": "7.1.0",
     "@types/mocha": "2.2.44",
@@ -30,6 +30,6 @@
     "testunitbail": "mocha -b --inspect -r ts-node/register $*",
     "testunitbrk": "mocha --inspect-brk -r ts-node/register $*"
   },
-  "version": "1.3.0",
+  "version": "2.0.0",
   "dependencies": {}
 }
