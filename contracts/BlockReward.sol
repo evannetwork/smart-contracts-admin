@@ -29,6 +29,7 @@ contract BlockRewardContract is DSAuth {
 
     function addExtraReceiver(uint256 _amount, address _receiver)
         external
+        auth
     {
         require(_amount != 0);
         require(_receiver != address(0));

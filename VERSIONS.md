@@ -1,9 +1,18 @@
-# smart-contracts
+# smart-contracts-admin
 
 ## Next Version
 ### Features
 ### Fixes
 ### Deprecations
+
+## Version 2.0.0
+### Features
+- use updated contracts with lesser execution cost from `smart-contracts-core`
+- replace labels from `DataContract` with pregenerated hashes to save gas cost
+
+### Fixes
+- add `auth` modifier to `addExtraReceiver`
+
 
 ## Version 1.3.0
 ### Features
