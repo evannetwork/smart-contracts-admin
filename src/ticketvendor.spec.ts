@@ -65,7 +65,7 @@ describe('TicketVendor contract', function() {
   before(async () => {
     web3 = new Web3(providers[currentProvider]());
     dfs = new Ipfs(
-      { remoteNode: new IpfsApi({ host: 'ipfs.evan.network', port: '443', protocol: 'https' }) });
+      { remoteNode: new IpfsApi({ host: 'ipfs.test.evan.network', port: '443', protocol: 'https' }) });
     const sha3 = web3.utils.soliditySha3;
     const sha9 = (address) => sha3(sha3(address), sha3(address));
     const additionalContractsPaths = getContractPaths();
