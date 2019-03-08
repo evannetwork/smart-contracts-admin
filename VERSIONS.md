@@ -2,6 +2,8 @@
 
 ## Next Version
 ### Features
+- add automatic query repetition to `TicketVendor`
+
 ### Fixes
 ### Deprecations
 
