@@ -45,7 +45,7 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         delete validIds[queryId];
         if (queryRepeat > 0) {
             assert(oraclize_getPrice("URL") <= this.balance);
-            bytes32 newQuery = oraclize_query("URL", query, gasLimit);
+            bytes32 newQuery = oraclize_query(queryRepeat, "URL", query, gasLimit);
             validIds[newQuery] = true;
         }
     }
