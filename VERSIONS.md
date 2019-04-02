@@ -3,6 +3,7 @@
 ## Next Version
 ### Features
 - add automatic query repetition to `TicketVendor`
+- add support for templates to profiles
 
 ### Fixes
 ### Deprecations
