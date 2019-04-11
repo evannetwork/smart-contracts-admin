@@ -2,11 +2,15 @@
 
 ## Next Version
 ### Features
+### Fixes
+### Deprecations
+
+
+## Version 2.1.0
+### Features
 - add automatic query repetition to `TicketVendor`
 - add support for templates to profiles
 
-### Fixes
-### Deprecations
 
 ## Version 2.0.0
 ### Features
