@@ -12,6 +12,8 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     // GPL-3.0 (but check file headers again)
     using strings for *;
 
+    uint256 public gasLimit = 175000;
+    uint256 public queryRepeat = 55 minutes;
     uint256 private ticketCount;
     mapping(uint256 => uint256) private ticketIssued;
     mapping(uint256 => address) private ticketOwner;
@@ -21,14 +23,37 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     uint256 private priceLastUpdated = 0;
     uint256 private priceMaxAge = 1 hours;
     string private query = "json(https://api.gdax.com/products/ETH-EUR/TICKER).price";
+    mapping(bytes32=>bool) private validIds;
+
+    // accept funds for using it in oraclize restests later
+    function () public payable {
+        // accept funds
+    }
+
+    constructor() public {
+        oraclize_setCustomGasPrice(5000000000);
+    }
 
     /// @notice callback for oraclize queries
     /// @dev https://docs.oraclize.it
     /// @param result query result, new price
-    function __callback(bytes32, string result) public {
-        assert(msg.sender == oraclize_cbAddress());
+    function __callback(bytes32 queryId, string result) public {
+        if (!validIds[queryId]) revert();
+        if (msg.sender != oraclize_cbAddress()) revert();
         priceEveWeiPerEther = convertToWei(result);
         priceLastUpdated = now;
+        delete validIds[queryId];
+        if (queryRepeat > 0) {
+            assert(oraclize_getPrice("URL") <= this.balance);
+            bytes32 newQuery = oraclize_query(queryRepeat, "URL", query, gasLimit);
+            validIds[newQuery] = true;
+        }
+    }
+
+    // sends funds to caller
+    /// @dev callable by owner
+    function claimFunds() public auth {
+        msg.sender.transfer(this.balance);
     }
 
     /// @notice creates new ticket
@@ -46,6 +71,27 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         ticketValue[ticketId] = value;
 
         TicketCreated(msg.sender, ticketId);
+    }
+
+    // set new limit for oraclize requests
+    /// @dev callable by owner
+    /// @param _gasLimit new limit
+    function setGasLimit(uint256 _gasLimit) public auth {
+        gasLimit = _gasLimit;
+    }
+
+    // set new gas price for oraclize requests
+    /// @dev callable by owner
+    /// @param _gasPrice new price
+    function setGasPrice(uint256 _gasPrice) public auth {
+        oraclize_setCustomGasPrice(_gasPrice);
+    }
+
+    // set repetition for query, 0 disables repetition
+    /// @dev callable by owner
+    /// @param _queryRepeat delay for queries
+    function setQueryRepeat(uint256 _queryRepeat) public auth {
+        queryRepeat = _queryRepeat;
     }
 
     // update maximum age of price
@@ -66,7 +112,8 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// @dev callable by owner / manager (tbd)
     function updatePrice() public payable auth {
         assert(oraclize_getPrice("URL") <= this.balance);
-        oraclize_query("URL", query);
+        bytes32 queryId = oraclize_query("URL", query, gasLimit);
+        validIds[queryId] = true;
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)

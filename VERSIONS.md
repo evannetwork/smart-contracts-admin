@@ -5,6 +5,13 @@
 ### Fixes
 ### Deprecations
 
+
+## Version 2.1.0
+### Features
+- add automatic query repetition to `TicketVendor`
+- add support for templates to profiles
+
+
 ## Version 2.0.0
 ### Features
 - use updated contracts with lesser execution cost from `smart-contracts-core`
