@@ -2,10 +2,15 @@
 
 ## Next Version
 ### Features
-- add `requestOwnerTicket` to `TicketVendor`
 
 ### Fixes
+
 ### Deprecations
+
+
+## Version 2.2.0
+### Features
+- add `requestOwnerTicket` to `TicketVendor`
 
 
 ## Version 2.1.0
