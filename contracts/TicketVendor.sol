@@ -7,9 +7,6 @@ import "./TicketVendorInterface.sol";
 
 
 contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
-    // TODO: upgradeability --> move storage into UpgradeabilityProxy.sol
-    // https://github.com/poanetwork/poa-bridge-contracts/blob/master/contracts/upgradeability/UpgradeabilityProxy.sol
-    // GPL-3.0 (but check file headers again)
     using strings for *;
 
     uint256 public gasLimit = 175000;
@@ -64,6 +61,22 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         uint256 ticketId = ticketCount++;
         var (price, , okay) = getCurrentPrice();
         assert(okay);
+
+        ticketIssued[ticketId] = now;
+        ticketOwner[ticketId] = msg.sender;
+        ticketPrice[ticketId] = price;
+        ticketValue[ticketId] = value;
+
+        TicketCreated(msg.sender, ticketId);
+    }
+
+    /// @notice creates new owner ticket; owner tickets are issued with the given price
+    /// @dev callable by owner
+    /// emits TicketCreated
+    /// @param value value to request, must be lte getTicketMinValue()
+    /// @param price ticket will be issued with this price 
+    function requestOwnerTicket(uint256 value, uint256 price) public auth {
+        uint256 ticketId = ticketCount++;
 
         ticketIssued[ticketId] = now;
         ticketOwner[ticketId] = msg.sender;
