@@ -7,9 +7,6 @@ import "./TicketVendorInterface.sol";
 
 
 contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
-    // TODO: upgradeability --> move storage into UpgradeabilityProxy.sol
-    // https://github.com/poanetwork/poa-bridge-contracts/blob/master/contracts/upgradeability/UpgradeabilityProxy.sol
-    // GPL-3.0 (but check file headers again)
     using strings for *;
 
     uint256 public gasLimit = 175000;
@@ -23,6 +20,7 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     uint256 private priceLastUpdated = 0;
     uint256 private priceMaxAge = 1 hours;
     string private query = "json(https://api.gdax.com/products/ETH-EUR/TICKER).price";
+    mapping(bytes32=>bool) private validIds;
 
     // accept funds for using it in oraclize restests later
     function () public payable {
@@ -36,13 +34,16 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// @notice callback for oraclize queries
     /// @dev https://docs.oraclize.it
     /// @param result query result, new price
-    function __callback(bytes32, string result) public {
-        assert(msg.sender == oraclize_cbAddress());
+    function __callback(bytes32 queryId, string result) public {
+        if (!validIds[queryId]) revert();
+        if (msg.sender != oraclize_cbAddress()) revert();
         priceEveWeiPerEther = convertToWei(result);
         priceLastUpdated = now;
+        delete validIds[queryId];
         if (queryRepeat > 0) {
             assert(oraclize_getPrice("URL") <= this.balance);
-            oraclize_query(queryRepeat, "URL", query, gasLimit);
+            bytes32 newQuery = oraclize_query(queryRepeat, "URL", query, gasLimit);
+            validIds[newQuery] = true;
         }
     }
 
@@ -60,6 +61,22 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
         uint256 ticketId = ticketCount++;
         var (price, , okay) = getCurrentPrice();
         assert(okay);
+
+        ticketIssued[ticketId] = now;
+        ticketOwner[ticketId] = msg.sender;
+        ticketPrice[ticketId] = price;
+        ticketValue[ticketId] = value;
+
+        TicketCreated(msg.sender, ticketId);
+    }
+
+    /// @notice creates new owner ticket; owner tickets are issued with the given price
+    /// @dev callable by owner
+    /// emits TicketCreated
+    /// @param value value to request, must be lte getTicketMinValue()
+    /// @param price ticket will be issued with this price 
+    function requestOwnerTicket(uint256 value, uint256 price) public auth {
+        uint256 ticketId = ticketCount++;
 
         ticketIssued[ticketId] = now;
         ticketOwner[ticketId] = msg.sender;
@@ -108,7 +125,8 @@ contract TicketVendor is usingOraclize, DSAuth, TicketVendorInterface {
     /// @dev callable by owner / manager (tbd)
     function updatePrice() public payable auth {
         assert(oraclize_getPrice("URL") <= this.balance);
-        oraclize_query("URL", query, gasLimit);
+        bytes32 queryId = oraclize_query("URL", query, gasLimit);
+        validIds[queryId] = true;
     }
 
     /// @notice get get current price and last update (as seconds since unix epoch)
