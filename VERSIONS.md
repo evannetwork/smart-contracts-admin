@@ -8,6 +8,11 @@
 ### Deprecations
 
 
+## Version 2.3.0
+### Features
+- update versions of dependencies
+
+
 ## Version 2.2.0
 ### Features
 - add `requestOwnerTicket` to `TicketVendor`

@@ -17,7 +17,7 @@ contract BlockRewardContract is DSAuth {
 
     event AddedReceiver(uint256 amount, address indexed receiver);
     event Rewarded(address[] receivers, uint256[] rewards);
-    
+
     constructor(address newOwner) public DSAuth() {
         setOwner(newOwner);
     }
@@ -33,6 +33,7 @@ contract BlockRewardContract is DSAuth {
     {
         require(_amount != 0);
         require(_receiver != address(0));
+
         uint256 oldAmount = extraReceiversAmounts(_receiver);
         if (oldAmount == 0) {
             _addExtraReceiver(_receiver);
@@ -47,8 +48,6 @@ contract BlockRewardContract is DSAuth {
         returns (address[], uint256[])
     {
         require(benefactors.length == kind.length);
-        require(benefactors.length == 1);
-        require(kind[0] == 0);
 
         uint256 extraLength = extraReceiversLength();
 
@@ -56,7 +55,7 @@ contract BlockRewardContract is DSAuth {
         uint256[] memory rewards = new uint256[](extraLength);
 
         uint256 i;
-        
+
         for (i = 0; i < extraLength; i++) {
             uint256 extraIndex = i;
             address extraAddress = extraReceivers(i);
@@ -73,7 +72,7 @@ contract BlockRewardContract is DSAuth {
         _clearExtraReceivers();
 
         emit Rewarded(receivers, rewards);
-    
+
         return (receivers, rewards);
     }
 
