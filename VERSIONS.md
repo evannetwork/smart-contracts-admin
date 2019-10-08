@@ -8,6 +8,11 @@
 ### Deprecations
 
 
+## Version 2.3.1
+### Fixes
+- remove custom agpl appendix
+
+
 ## Version 2.3.0
 ### Features
 - update versions of dependencies
