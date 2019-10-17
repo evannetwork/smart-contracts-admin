@@ -2,6 +2,7 @@
 
 ## Next Version
 ### Features
+- update `ProfileDataContractFactory` to support profiles with different entries and listEntries
 
 ### Fixes
 
