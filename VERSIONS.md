@@ -8,6 +8,11 @@
 ### Deprecations
 
 
+## Version 2.4.0
+### Features
+- update `ProfileDataContractFactory` to support profiles with different entries and listEntries
+
+
 ## Version 2.3.1
 ### Fixes
 - remove custom agpl appendix
