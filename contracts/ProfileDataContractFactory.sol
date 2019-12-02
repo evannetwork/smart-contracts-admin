@@ -22,26 +22,39 @@ pragma solidity ~0.4.24;
 import "./BaseContractFactory.sol";
 import "./DSRolesPerContract.sol";
 import "./DataContract.sol";
+import "./ProfileDataContractFactoryInterface.sol";
 
 
-contract ProfileDataContractFactory is BaseContractFactory {
-    uint public constant VERSION_ID = 2;
-    
+contract ProfileDataContractFactory is BaseContractFactory, ProfileDataContractFactoryInterface {
+    uint public constant VERSION_ID = 3;
+
+    /// @notice DOES NOT DO ANYTHING, ONLY KEPT TO PRESERVE INTERFACE SUPPORT
+    /// @dev as super.createRoles(owner) is used, so super contracts function has to be implemented
     function createContract(
-            address businessCenter,
-            address provider,
-            bytes32 _contractDescription,
-            address ensAddress) public returns (address) {
-        // does not do anything, only kept to preserve interface support
+        address businessCenter,
+        address provider,
+        bytes32 contractDescription,
+        address ensAddress
+    ) public returns (address) {
     }
 
+    /// @notice create new DataContract to be used as a profile
+    /// @dev requires calling "init" before usage
+    /// @param businessCenter if required, dedicated business center for profile
+    /// @param provider owner of new profile
+    /// @param _contractDescription DBCP definition of the contract
+    /// @param ensAddress address of the ENS contract
+    /// @param entries name of entries in profile to be accessible by respective groups
+    /// @param lists name of lists in profile to be accessible by respective groups
+    /// @return address of new profile
     function createContract(
-            address businessCenter,
-            address provider,
-            bytes32 _contractDescription,
-            address ensAddress,
-            bytes32[] entries,
-            bytes32[] lists) public returns (address) {
+        address businessCenter,
+        address provider,
+        bytes32 _contractDescription,
+        address ensAddress,
+        bytes32[] entries,
+        bytes32[] lists
+    ) public returns (address) {
         DataContract newContract = new DataContract(provider, keccak256("ProfileDataContract"), _contractDescription, ensAddress);
         DSRolesPerContract roles = createRoles(provider, newContract, entries, lists);
         newContract.setAuthority(roles);
@@ -53,8 +66,19 @@ contract ProfileDataContractFactory is BaseContractFactory {
         return newContract;
     }
 
-    function createRoles(address owner, address newContract, bytes32[] entries, bytes32[] lists
-            ) public returns (DSRolesPerContract) {
+    /// @notice setup roles in new DataContract to use it as a profile
+    /// @dev intended to be used by factory itself, but tx could be separated to split tx costs
+    /// @param owner profile owner
+    /// @param newContract to be configured DataContract
+    /// @param entries name of entries in profile to be accessible by respective groups
+    /// @param lists name of lists in profile to be accessible by respective groups
+    /// @return authority of newContract
+    function createRoles(
+        address owner,
+        address newContract,
+        bytes32[] entries,
+        bytes32[] lists
+    ) public returns (DSRolesPerContract) {
         DSRolesPerContract roles = super.createRoles(owner);
         DataContract dc = DataContract(newContract);
         // roles
